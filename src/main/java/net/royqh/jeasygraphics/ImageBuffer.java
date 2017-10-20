@@ -41,13 +41,8 @@ public class ImageBuffer {
         g.setColor(color);
         g.setBackground(backgroundColor);
         g.setStroke(new BasicStroke(lineWidth));
-        /*
-        if (viewPortInfo.clipOn) {
-            g.setClip(viewPortInfo.left,viewPortInfo.top,
-                    viewPortInfo.right-viewPortInfo.left,
-                    viewPortInfo.bottom-viewPortInfo.top);
-        }
-        */
+        //g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+
         g.translate(viewPortInfo.left,viewPortInfo.top);
         return g;
     }

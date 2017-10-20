@@ -6,6 +6,8 @@ import java.awt.event.*;
 import java.util.concurrent.Semaphore;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static net.royqh.jeasygraphics.RenderMode.AUTO;
+import static net.royqh.jeasygraphics.RenderMode.MANUAL;
 
 public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
     public final static int PAGE_SIZE=2;
@@ -14,6 +16,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
     private int height;
     private volatile int keyCode=-1;
     private MainFrame mainScreen;
+    private RenderMode renderMode=AUTO;
     private ImageBuffer targetPage;
     private ImageBuffer[] imagePages;
     private JEasyGraphics(int width,int height){
@@ -53,6 +56,14 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
         targetPage=imagePages[0];
     }
 
+    public RenderMode getRenderMode() {
+        return renderMode;
+    }
+
+    public void setRenderMode(RenderMode renderMode) {
+        this.renderMode = renderMode;
+    }
+
     /**
      * 设置绘制目标
      * @param i
@@ -70,7 +81,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void line(int x1,int y1,int x2,int y2){
         targetPage.line(x1,y1,x2,y2);
-        updateTarget();
+        updateScreen();
     }
 
 
@@ -97,7 +108,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void arc(int x,int y,int startAngle, int endAngle, int xRadius,int yRadius) {
         targetPage.arc(x,y,startAngle,endAngle,xRadius,yRadius);
-        updateTarget();
+        updateScreen();
     }
 
 
@@ -110,7 +121,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void circle(int x,int y,int radius){
         targetPage.circle(x,y,radius);
-        updateTarget();
+        updateScreen();
     }
 
 
@@ -123,7 +134,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void rectangle(int left, int top, int right, int bottom){
         targetPage.rectangle(left,top,right,bottom);
-        updateTarget();
+        updateScreen();
     }
 
     /**
@@ -149,7 +160,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void roundRect(int left, int top, int right, int bottom, int xRadius,int yRadius){
         targetPage.roundRect(left,top,right,bottom,xRadius,yRadius);
-        updateTarget();
+        updateScreen();
     }
 
 
@@ -163,12 +174,12 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void ellipse(int x,int y,int xRadius,int yRadius) {
         targetPage.ellipse(x,y,xRadius,yRadius);
-        updateTarget();
+        updateScreen();
     }
 
     public void floodFill(int x, int y, Color color){
         targetPage.floodFill(x,y,color);
-        updateTarget();
+        updateScreen();
     }
 
     public Color getPixel(int x,int y) {
@@ -177,7 +188,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
 
     public void putPixel(int x,int y, Color color) {
         targetPage.putPixel(x,y,color);
-        updateTarget();
+        updateScreen();
     }
 
     /**
@@ -189,7 +200,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void bar(int left, int top, int right, int bottom ) {
         targetPage.bar(left,top,right,bottom);
-        updateTarget();
+        updateScreen();
     }
 
     /**
@@ -201,7 +212,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void fillRectangle(int left, int top, int right, int bottom )  {
         targetPage.fillRectangle(left,top,right,bottom);
-        updateTarget();
+        updateScreen();
     }
 
     /**
@@ -215,7 +226,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void fillArc(int x,int y,int startAngle, int endAngle, int radius){
         targetPage.fillArc(x,y,startAngle,endAngle,radius);
-        updateTarget();
+        updateScreen();
     }
 
     /**
@@ -230,7 +241,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void fillArc(int x,int y,int startAngle, int endAngle, int xRadius,int yRadius){
         targetPage.fillArc(x,y,startAngle,endAngle,xRadius,yRadius);
-        updateTarget();
+        updateScreen();
     }
 
     /**
@@ -245,12 +256,12 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void sector(int x,int y,int startAngle, int endAngle, int xRadius,int yRadius){
         targetPage.sector(x, y, startAngle, endAngle, xRadius, yRadius);
-        updateTarget();
+        updateScreen();
     }
 
     public void pie( int left, int top,int right,int bottom, int stangle,int endangle) {
         targetPage.pie(left,top,right,bottom,stangle,endangle);
-        updateTarget();
+        updateScreen();
     }
 
     /**
@@ -262,7 +273,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void fillCircle(int x,int y,int radius) {
         targetPage.fillCircle(x,y,radius);
-        updateTarget();
+        updateScreen();
     }
 
     /**
@@ -274,7 +285,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void fillEllipse(int x, int y, int xRadius, int yRadius) {
         targetPage.fillEllipse(x,y,xRadius,yRadius);
-        updateTarget();
+        updateScreen();
     }
 
     /**
@@ -285,7 +296,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void fillPoly(int[] xPoints, int[] yPoints, int numPoints) {
         targetPage.fillPoly(xPoints,yPoints,numPoints);
-        updateTarget();
+        updateScreen();
     }
 
     /**
@@ -295,7 +306,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void fillPoly(int numPoints, int[] polyPoints) {
         targetPage.fillPoly(numPoints,polyPoints);
-        updateTarget();
+        updateScreen();
     }
 
     /**
@@ -309,7 +320,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void fillRoundRect(int left, int top, int right, int bottom, int radius){
         targetPage.fillRoundRect(left,top,right,bottom,radius);
-        updateTarget();
+        updateScreen();
     }
 
     /**
@@ -323,7 +334,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void fillRoundRect(int left, int top, int right, int bottom, int xRadius,int yRadius)  {
         targetPage.fillRoundRect(left,top,right,bottom,xRadius,yRadius);
-        updateTarget();
+        updateScreen();
     }
 
     /**
@@ -334,7 +345,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void drawPoly(int[] xPoints, int[] yPoints, int numPoints) {
         targetPage.drawPoly(xPoints,yPoints,numPoints);
-        updateTarget();
+        updateScreen();
     }
 
     /**
@@ -344,7 +355,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void drawPoly(int numPoints, int[] polyPoints) {
         targetPage.drawPoly(numPoints,polyPoints);
-        updateTarget();
+        updateScreen();
     }
 
     /**
@@ -352,7 +363,7 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     public void clear(){
         targetPage.clear();
-        updateTarget();
+        updateScreen();
     }
 
     private Runnable updateTargetRunnable=new Runnable() {
@@ -373,9 +384,11 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
     /**
      * 更新目标图像
      */
-    private void updateTarget() {
+    private void updateScreen() {
         if (imagePages[0]==targetPage) {
-            redrawScreen();
+            if (renderMode==AUTO) {
+                redrawScreen();
+            }
         }
     }
 
@@ -444,6 +457,9 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
     private Semaphore keyboardSemaphore =new Semaphore(0);
     public int getChar(){
         synchronized (this){
+            if (renderMode==MANUAL) {
+                redrawScreen();
+            }
             try {
                 keyboardSemaphore.acquire();
                 int k=keyCode;
@@ -453,6 +469,47 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
                 return -1;
             }
         }
+    }
+
+    /**
+     * 至少延迟以毫秒为单位的时间
+     * @param milliseconds 要延迟的时间，以毫秒为单位
+     */
+    public void delay(long milliseconds) {
+        redrawScreen();
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void delay_ms(long milliseconds)  {
+        delay(milliseconds);
+    }
+
+    private long delayFpsLast=0;
+
+    public void delayFps(long fps) {
+        double delay_time = 1000.0 / fps;
+        double avg_max_time = delay_time * 10.0; // 误差时间在这个数值以内做平衡
+        int nloop = 0;
+
+        if (delayFpsLast == 0) {
+            delayFpsLast = System.nanoTime() ;
+        }
+        redrawScreen();
+        long dw = System.nanoTime()  ;
+        if (delay_time>(dw-delayFpsLast)/1000000) {
+            try {
+                Thread.sleep((long)(delay_time-(dw-delayFpsLast)/1000000));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } else {
+
+        }
+        delayFpsLast=System.nanoTime();
     }
 
     public boolean kbhit() {

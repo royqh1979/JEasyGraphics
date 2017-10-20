@@ -5,7 +5,7 @@ import java.awt.*;
 import static java.awt.Color.BLACK;
 import static java.awt.Color.WHITE;
 
-public class Test {
+public class Doraemon {
     public static void main(String[] args){
         JEasyGraphics eg=JEasyGraphics.init(800,600);
         System.out.println("lala");
