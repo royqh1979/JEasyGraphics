@@ -10,7 +10,7 @@ public class Doraemon {
         JEasyGraphics eg=JEasyGraphics.init(800,600);
         System.out.println("lala");
         //setorigin(400, 300);
-        eg.setViewPort(400,300,400,400,false);
+        eg.setViewPort(400,300,500,400,false);
         // 使用白色填充背景
         eg.setBackgroundColor(WHITE);
         eg.clear();

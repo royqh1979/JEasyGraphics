@@ -1,8 +1,12 @@
 package net.royqh.jeasygraphics;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.Semaphore;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -17,6 +21,8 @@ public class JEasyGraphics  {
     private volatile KeyEvent keyEvent=null;
     private volatile int keyCode=-1;
     private volatile MouseMsg mouseMsg=null;
+    private long lastKeyTime=0;
+    private long lastMouseTime=0;
     private MainFrame mainScreen;
     private RenderMode renderMode= RENDER_AUTO;
     private ImageBuffer targetPage;
@@ -39,6 +45,15 @@ public class JEasyGraphics  {
     public ImageBuffer createImage() {
         ImageBuffer imageBuffer=new ImageBuffer(width,height);
         return imageBuffer;
+    }
+
+    public ImageBuffer createImage(int width,int height) {
+        return new ImageBuffer(width,height);
+    }
+
+    public ImageBuffer createImage(File imageFile) throws IOException {
+        BufferedImage image=ImageIO.read(imageFile);
+        return new ImageBuffer(image);
     }
 
     public ImageBuffer getTarget() {
@@ -398,8 +413,6 @@ public class JEasyGraphics  {
      * 暂停主程序运行,直到按下任意键
      */
     public void pause() {
-        keyMsgSemaphore.drainPermits();
-        keyCodeSemaphore.drainPermits();
         getCh();
     }
 
@@ -409,6 +422,7 @@ public class JEasyGraphics  {
      * @return
      */
     public boolean keyState(int keyCode) {
+        checkKeyEventTime();
         return (keyCode==this.keyCode);
     }
 
@@ -466,6 +480,14 @@ public class JEasyGraphics  {
         targetPage.setViewPort(left,top,right,bottom,clip);
     }
 
+    public ViewPortInfo getViewPort() {
+        return targetPage.getViewPort();
+    }
+
+    public void clearViewPort() {
+        targetPage.clearViewPort();
+    }
+
     public void setLineWidth(float width) {
         targetPage.setLineWidth(width);
     }
@@ -495,6 +517,7 @@ public class JEasyGraphics  {
      * @return
      */
     public boolean kbMsg(){
+        checkKeyEventTime();
         return  keyMsgSemaphore.availablePermits()>0;
     }
 
@@ -529,6 +552,7 @@ public class JEasyGraphics  {
                 redrawScreen();
             }
             try {
+                checkKeyEventTime();
                 keyCodeSemaphore.acquire();
                 int code=keyCode;
                 keyCode=-1;
@@ -585,7 +609,26 @@ public class JEasyGraphics  {
      * @return
      */
     public boolean kbHit() {
+        checkKeyEventTime();
         return  keyCodeSemaphore.availablePermits()>0;
+    }
+
+    private void checkKeyEventTime() {
+        long now=System.nanoTime();
+        if (now - lastKeyTime > 500000000 ) {
+            keyCode=-1;
+            keyEvent=null;
+            keyCodeSemaphore.drainPermits();
+            keyMsgSemaphore.drainPermits();
+        }
+    }
+
+    private void checkMouseEventTime() {
+        long now=System.nanoTime();
+        if (now - lastKeyTime > 500000000 ) {
+            mouseMsg=null;
+            mouseMsgSemaphore.drainPermits();
+        }
     }
 
     /**
@@ -614,6 +657,7 @@ public class JEasyGraphics  {
                 redrawScreen();
             }
             try {
+                checkMouseEventTime();
                 mouseMsgSemaphore.acquire();
                 MouseMsg message=mouseMsg;
                 mouseMsg=null;
@@ -630,12 +674,13 @@ public class JEasyGraphics  {
      * @return
      */
     public boolean mouseMsg() {
+        checkMouseEventTime();
         return mouseMsgSemaphore.drainPermits()>0;
     }
 
     public Point convertCordinate(Point p){
-        return new Point(p.x+targetPage.getViewPortInfo().left,
-                p.y+targetPage.getViewPortInfo().top);
+        return new Point(p.x+targetPage.getViewPort().left,
+                p.y+targetPage.getViewPort().top);
     }
 
     public class MainFrame extends JFrame {
@@ -674,6 +719,7 @@ public class JEasyGraphics  {
 
         @Override
         public void keyPressed(KeyEvent e) {
+            lastKeyTime=System.nanoTime();
             keyEvent=e;
             keyCode=e.getKeyCode();
             keyCodeSemaphore.release(1);
@@ -690,8 +736,9 @@ public class JEasyGraphics  {
         }
 
         private void onMouseEvent(MouseEvent e) {
-            MouseMsg mouseMsg=new MouseMsg(targetPage.getViewPortInfo().left,
-                    targetPage.getViewPortInfo().top,
+            lastMouseTime=System.nanoTime();
+            MouseMsg mouseMsg=new MouseMsg(targetPage.getViewPort().left,
+                    targetPage.getViewPort().top,
                     e);
             mouseMsgSemaphore.release(1);
         }

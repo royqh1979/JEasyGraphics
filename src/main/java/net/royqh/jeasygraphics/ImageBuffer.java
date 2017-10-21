@@ -1,12 +1,19 @@
 package net.royqh.jeasygraphics;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.ColorConvertOp;
+import java.awt.image.ColorModel;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ThreadPoolExecutor;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
 
 public class ImageBuffer {
@@ -32,13 +39,20 @@ public class ImageBuffer {
     public ImageBuffer(int width,int height) {
         this.width=width;
         this.height=height;
-        this.viewPortInfo=new ViewPortInfo(0,0,width,height,true);
+        this.viewPortInfo=new ViewPortInfo(0,0,width,height,false);
         this.image = new BufferedImage(width,height,TYPE_INT_ARGB);
+        clear();
+    }
+
+    public ImageBuffer(BufferedImage image) {
+        this(image.getWidth(),image.getHeight());
         init();
+        Graphics2D g=(Graphics2D)(this.image.getGraphics());
+        g.drawImage(image,0,0,null);
+        g.dispose();
     }
 
     private void init() {
-        Graphics2D g=(Graphics2D)image.getGraphics();
         clear();
     }
 
@@ -48,7 +62,10 @@ public class ImageBuffer {
         g.setBackground(backgroundColor);
         g.setStroke(new BasicStroke(lineWidth,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND));
         //g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
-
+        if (viewPortInfo.clipOn) {
+            g.setClip(viewPortInfo.left,viewPortInfo.top,viewPortInfo.right-viewPortInfo.left,
+                    viewPortInfo.bottom-viewPortInfo.top);
+        }
         g.translate(viewPortInfo.left,viewPortInfo.top);
         return g;
     }
@@ -114,10 +131,46 @@ public class ImageBuffer {
         Graphics2D g=(Graphics2D)image.getGraphics();
         g.setColor(backgroundColor);
         g.fillRect(0,0,width,height);
+        g.dispose();
     }
 
-    public ViewPortInfo getViewPortInfo(){
+    public ViewPortInfo getViewPort(){
         return viewPortInfo;
+    }
+
+    public void clearViewPort() {
+        viewPortInfo.left=0;
+        viewPortInfo.top=0;
+        viewPortInfo.right=width;
+        viewPortInfo.bottom=height;
+        viewPortInfo.clipOn=false;
+    }
+
+    public void putImage(ImageBuffer imageBuffer,int x,int y) {
+        Graphics2D g=getGraphics2D();
+        g.drawImage(imageBuffer.getImage(),x,y,null);
+        g.dispose();
+    }
+
+    public void putImage(ImageBuffer imageBuffer,int x,int y, int width, int height,int srcX,int srcY) {
+        Graphics2D g=getGraphics2D();
+        g.drawImage(image,x,y,x+width,y+height,srcX,srcY,srcX+width,srcY+height,null);
+        g.dispose();
+    }
+
+    public void putImage(ImageBuffer imageBuffer,int x,int y, int width, int height, int srcX, int srcY, int srcWidth,int srcHeight) {
+        Graphics2D g=getGraphics2D();
+        g.drawImage(image,x,y,x+width,y+height,srcX,srcY,srcX+srcWidth,srcY+srcHeight,null);
+        g.dispose();
+    }
+
+    public void putImageTransparent(ImageBuffer imageBuffer,int x,int y, int width, int height, int srcX, int srcY, int srcWidth,int srcHeight,Color transColor) {
+        /** TODO **/
+        BufferedImage image=new BufferedImage(srcWidth,srcHeight, TYPE_INT_ARGB);
+        Graphics2D g=image.createGraphics();
+        g.drawImage(imageBuffer.getImage(),0,0,srcWidth,srcHeight,srcX,srcY,srcX+srcWidth,srcY+srcHeight,null);
+        g.dispose();
+
     }
 
     /**
@@ -128,8 +181,9 @@ public class ImageBuffer {
      * @param y2
      */
     public void line(int x1,int y1,int x2,int y2) {
-        Graphics2D graphics=getGraphics2D();
-        graphics.drawLine(x1,y1,x2,y2);
+        Graphics2D g=getGraphics2D();
+        g.drawLine(x1,y1,x2,y2);
+        g.dispose();
     }
 
     /**
@@ -186,6 +240,7 @@ public class ImageBuffer {
     public void arc(int x,int y,int startAngle, int endAngle, int xRadius,int yRadius){
         Graphics2D g=getGraphics2D();
         g.drawArc(x-xRadius,y-yRadius,xRadius*2,yRadius*2,startAngle,endAngle-startAngle);
+        g.dispose();
     }
 
     /**
@@ -208,6 +263,7 @@ public class ImageBuffer {
     public void rectangle(int left, int top, int right, int bottom) {
         Graphics2D g=getGraphics2D();
         g.drawRect(left,top,right-left,bottom-top);
+        g.dispose();
     }
 
     /**
@@ -234,6 +290,7 @@ public class ImageBuffer {
     public void roundRect(int left, int top, int right, int bottom, int xRadius,int yRadius){
         Graphics2D g=getGraphics2D();
         g.drawRoundRect(left,top,right-left,bottom-top,xRadius,yRadius);
+        g.dispose();
     }
 
     /**
@@ -246,6 +303,7 @@ public class ImageBuffer {
     public void ellipse(int x,int y, int xRadius,int yRadius){
         Graphics2D g=getGraphics2D();
         g.drawOval(x-xRadius,y-yRadius,xRadius*2,yRadius*2);
+        g.dispose();
     }
 
     /**
@@ -257,13 +315,12 @@ public class ImageBuffer {
     public void floodFill(int x, int y, Color borderColor){
         x+=viewPortInfo.left;
         y+=viewPortInfo.top;
-        if (x<0 || x>getWidth()) {
+        if (!isXValidForFloodFill(x)) {
             return;
         }
-        if (y<0 || y>getHeight()){
+        if (!isYValidForFloodFill(y)){
             return ;
         }
-        Graphics2D g=getGraphics2D();
         Queue<Point> queue=new LinkedList<>();
         boolean[][] processed=new boolean[width+1][height+1];
 
@@ -282,11 +339,19 @@ public class ImageBuffer {
         }
     }
 
+    private boolean isYValidForFloodFill(int y) {
+        return y>=0 && y<getHeight() && ( !viewPortInfo.clipOn || (y<viewPortInfo.bottom && y>=viewPortInfo.top ));
+    }
+
+    private boolean isXValidForFloodFill(int x) {
+        return x>=0 && x<getWidth() && ( !viewPortInfo.clipOn ||(x<viewPortInfo.right && x>=viewPortInfo.left));
+    }
+
     private void floodfilladdPoint(Queue<Point> queue, int x, int y, boolean[][] processed) {
-        if (x<0 || x>getWidth()) {
+        if (!isXValidForFloodFill(x)) {
             return;
         }
-        if (y<0 || y>getHeight()){
+        if (!isYValidForFloodFill(y)){
             return ;
         }
         if(processed[x][y]) {
@@ -319,6 +384,7 @@ public class ImageBuffer {
         Graphics2D g=getGraphics2D();
         g.setColor(fillColor);
         g.fillRect(left,top,right-left,bottom-top);
+        g.dispose();
     }
 
     /**
@@ -347,6 +413,7 @@ public class ImageBuffer {
         Graphics2D g=getGraphics2D();
         g.setColor(fillColor);
         g.fillRoundRect(left,top,right-left,bottom-top,xRadius,yRadius);
+        g.dispose();
     }
 
     /**
@@ -376,6 +443,7 @@ public class ImageBuffer {
         Graphics2D g=getGraphics2D();
         g.setColor(fillColor);
         g.fillArc(x,y,xRadius,yRadius,startAngle,endAngle-startAngle);
+        g.dispose();
     }
 
     /**
@@ -418,6 +486,7 @@ public class ImageBuffer {
         Graphics2D g=getGraphics2D();
         g.setColor(fillColor);
         g.fillOval(x-xRadius,y-yRadius,xRadius*2,yRadius*2);
+        g.dispose();
     }
 
     /**
@@ -430,10 +499,11 @@ public class ImageBuffer {
         Graphics2D g=getGraphics2D();
         g.setColor(fillColor);
         g.fillPolygon(xPoints,yPoints,numPoints);
+        g.dispose();
     }
 
     /**
-     * 画带边框填充多边形
+     * 画无边框填充多边形
      * @param numPoints 多边形点的个数
      * @param polyPoints 每个点的坐标（依次两个分别为x,y），数组元素个数为 numPoints * 2。
      */
@@ -476,6 +546,7 @@ public class ImageBuffer {
     public void drawPoly(int[] xPoints, int[] yPoints, int numPoints) {
         Graphics2D g=getGraphics2D();
         g.drawPolygon(xPoints,yPoints,numPoints);
+        g.dispose();
     }
 
     /**
