@@ -97,5 +97,8 @@ public class Doraemon {
         eg.setLineWidth(1);					// 铃铛上的纹路
         eg.line(-16, 40, 16, 40);
         eg.line(-18, 44, 18, 44);
+
+        eg.pause();
+        eg.close();
     }
 }

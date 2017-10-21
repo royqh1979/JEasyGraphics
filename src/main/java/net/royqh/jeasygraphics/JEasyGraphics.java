@@ -6,23 +6,25 @@ import java.awt.event.*;
 import java.util.concurrent.Semaphore;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static net.royqh.jeasygraphics.RenderMode.AUTO;
-import static net.royqh.jeasygraphics.RenderMode.MANUAL;
+import static net.royqh.jeasygraphics.RenderMode.RENDER_AUTO;
+import static net.royqh.jeasygraphics.RenderMode.RENDER_MANUAL;
 
-public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
+public class JEasyGraphics  {
     public final static int PAGE_SIZE=2;
     private static JEasyGraphics instance=null;
     private int width;
     private int height;
+    private volatile KeyEvent keyEvent=null;
     private volatile int keyCode=-1;
+    private volatile MouseMsg mouseMsg=null;
     private MainFrame mainScreen;
-    private RenderMode renderMode=AUTO;
+    private RenderMode renderMode= RENDER_AUTO;
     private ImageBuffer targetPage;
     private ImageBuffer[] imagePages;
     private JEasyGraphics(int width,int height){
         this.width=width;
         this.height=height;
-        mainScreen=new MainFrame(width,height,this);
+        mainScreen=new MainFrame(width,height);
         initImages();
     }
 
@@ -386,15 +388,28 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
      */
     private void updateScreen() {
         if (imagePages[0]==targetPage) {
-            if (renderMode==AUTO) {
+            if (renderMode== RENDER_AUTO) {
                 redrawScreen();
             }
         }
     }
 
+    /**
+     * 暂停主程序运行,直到按下任意键
+     */
     public void pause() {
-        keyboardSemaphore.drainPermits();
-        getChar();
+        keyMsgSemaphore.drainPermits();
+        keyCodeSemaphore.drainPermits();
+        getCh();
+    }
+
+    /**
+     * 这个函数用于判断某按键是否被按下。
+     * @param keyCode
+     * @return
+     */
+    public boolean keyState(int keyCode) {
+        return (keyCode==this.keyCode);
     }
 
     /**
@@ -417,32 +432,33 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
         mainScreen.setTitle(title);
     }
 
-    public MainFrame getMainScreen() {
+    public JFrame getMainScreen() {
         return mainScreen;
     }
 
 
     public void setFillColor(Color fillColor){
-        setFillColor(fillColor,targetPage);
-    }
-    public void setFillColor(Color fillColor, ImageBuffer targetImage) {
-        targetImage.setFillColor(fillColor);
+        targetPage.setFillColor(fillColor);
     }
 
     public void setColor(Color color) {
-        setColor(color,targetPage);
+        targetPage.setColor(color);
     }
 
-    public void setColor(Color color,ImageBuffer targetImage) {
-        targetImage.setColor(color);
+    public Color getColor() {
+        return targetPage.getColor();
+    }
+
+    public Color getFillColor() {
+        return targetPage.getColor();
+    }
+
+    public Color getBackgroundColor() {
+        return targetPage.getColor();
     }
 
     public void setBackgroundColor(Color backgroundColor) {
-        setBackgroundColor(backgroundColor,targetPage);
-    }
-
-    public void setBackgroundColor(Color backgroundColor,ImageBuffer targetImage) {
-        targetImage.setBackgroundColor(backgroundColor);
+        targetPage.setBackgroundColor(backgroundColor);
     }
 
     public void setViewPort(int left,int top,int right,
@@ -454,16 +470,69 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
         targetPage.setLineWidth(width);
     }
 
-    private Semaphore keyboardSemaphore =new Semaphore(0);
-    public int getChar(){
+    public float getLineWidth(){
+        return targetPage.getLineWidth();
+    }
+
+    public void setLineStyle(LineStyle lineStyle) {
+        targetPage.setLineStyle(lineStyle);
+    }
+
+    public LineStyle getLineStyle() {
+        return targetPage.getLineStyle();
+    }
+
+
+
+
+
+    private Semaphore keyCodeSemaphore = new Semaphore(0);
+    private Semaphore keyMsgSemaphore =new Semaphore(0);
+    private Semaphore mouseMsgSemaphore = new Semaphore(0);
+
+    /**
+     * 这个函数用于检测当前是否有键盘消息
+     * @return
+     */
+    public boolean kbMsg(){
+        return  keyMsgSemaphore.availablePermits()>0;
+    }
+
+    /**
+     * 这个函数用于获取键盘消息，如果当前没有消息，则等待。
+     * @return
+     */
+    public KeyEvent getKey(){
         synchronized (this){
-            if (renderMode==MANUAL) {
+            if (renderMode== RENDER_MANUAL) {
                 redrawScreen();
             }
             try {
-                keyboardSemaphore.acquire();
-                int k=keyCode;
+                keyMsgSemaphore.acquire();
+                KeyEvent k=keyEvent;
+                keyEvent=null;
                 return k;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+    }
+
+    /**
+     * 这个函数用于获取键盘字符输入，如果当前没有输入，则等待。
+     * @return
+     */
+    public int getCh(){
+        synchronized (this){
+            if (renderMode== RENDER_MANUAL) {
+                redrawScreen();
+            }
+            try {
+                keyCodeSemaphore.acquire();
+                int code=keyCode;
+                keyCode=-1;
+                return code;
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 return -1;
@@ -484,15 +553,14 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
         }
     }
 
-    public void delay_ms(long milliseconds)  {
-        delay(milliseconds);
-    }
-
     private long delayFpsLast=0;
 
+    /**
+     * 延迟1000/fps毫秒时间
+     * @param fps
+     */
     public void delayFps(long fps) {
         double delay_time = 1000.0 / fps;
-        double avg_max_time = delay_time * 10.0; // 误差时间在这个数值以内做平衡
         int nloop = 0;
 
         if (delayFpsLast == 0) {
@@ -512,72 +580,68 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
         delayFpsLast=System.nanoTime();
     }
 
-    public boolean kbhit() {
-        return  keyboardSemaphore.availablePermits()>0;
+    /**
+     * 这个函数用于检测当前是否有键盘字符输入
+     * @return
+     */
+    public boolean kbHit() {
+        return  keyCodeSemaphore.availablePermits()>0;
     }
 
-    @Override
-    public void keyTyped(KeyEvent e) {
-
+    /**
+     * 关闭主窗口
+     */
+    public void close() {
+        mainScreen.dispose();
     }
 
-    @Override
-    public void keyPressed(KeyEvent e) {
-        keyCode=e.getKeyCode();
-        keyboardSemaphore.release(1);
+    /**
+     * 获取当前鼠标坐标
+     * @return
+     */
+    public Point mousePos() {
+        Point p=mainScreen.getMousePosition();
+        return convertCordinate(p);
     }
 
-    @Override
-    public void keyReleased(KeyEvent e) {
-
+    /**
+     * 这个函数用于获取一个鼠标消息。如果当前鼠标消息队列中没有，就一直等待。
+     * @return
+     */
+    public MouseMsg getMouse() {
+        synchronized (this){
+            if (renderMode== RENDER_MANUAL) {
+                redrawScreen();
+            }
+            try {
+                mouseMsgSemaphore.acquire();
+                MouseMsg message=mouseMsg;
+                mouseMsg=null;
+                return message;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
     }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
-
+    /**
+     * 这个函数用于检测当前是否有鼠标消息
+     * @return
+     */
+    public boolean mouseMsg() {
+        return mouseMsgSemaphore.drainPermits()>0;
     }
 
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseWheelMoved(MouseWheelEvent e) {
-        
+    public Point convertCordinate(Point p){
+        return new Point(p.x+targetPage.getViewPortInfo().left,
+                p.y+targetPage.getViewPortInfo().top);
     }
 
     public class MainFrame extends JFrame {
-        private JEasyGraphics jEasyGraphics;
 
-        public MainFrame(int width, int height, JEasyGraphics easyGraphics) {
+        public MainFrame(int width, int height) {
             super("JEasyGraphics");
-            this.jEasyGraphics=easyGraphics;
             init(width,height);
         }
 
@@ -588,16 +652,83 @@ public class JEasyGraphics implements KeyListener, MouseListener, MouseMotionLis
                     setBounds(100,100,width,height);
                     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                     setVisible(true);
-                    addKeyListener(jEasyGraphics);
-                    addMouseListener(jEasyGraphics);
-                    addMouseMotionListener(jEasyGraphics);
-                    addMouseWheelListener(jEasyGraphics);
+                    addKeyListener(eventHandler);
+                    addMouseWheelListener(eventHandler);
+                    addMouseListener(eventHandler);
+                    addMouseMotionListener(eventHandler);
                 }
             });
         }
         @Override
         public void paint(Graphics g) {
-            jEasyGraphics.onPaint(g);
+            onPaint(g);
         }
+    }
+
+    public EventHandler eventHandler=new EventHandler();
+
+    public class EventHandler implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
+        @Override
+        public void keyTyped(KeyEvent e) {
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            keyEvent=e;
+            keyCode=e.getKeyCode();
+            keyCodeSemaphore.release(1);
+            keyMsgSemaphore.release(1);
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+        }
+
+        private void onMouseEvent(MouseEvent e) {
+            MouseMsg mouseMsg=new MouseMsg(targetPage.getViewPortInfo().left,
+                    targetPage.getViewPortInfo().top,
+                    e);
+            mouseMsgSemaphore.release(1);
+        }
+        @Override
+        public void mousePressed(MouseEvent e) {
+            onMouseEvent(e);
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            onMouseEvent(e);
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
+            onMouseEvent(e);
+        }
+
+        @Override
+        public void mouseWheelMoved(MouseWheelEvent e) {
+            onMouseEvent(e);
+        }
+
     }
 }

@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
-import static java.awt.image.BufferedImage.TYPE_4BYTE_ABGR;
 import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
 
 public class ImageBuffer {
@@ -15,13 +14,20 @@ public class ImageBuffer {
     private int width;
     private int height;
     private ViewPortInfo viewPortInfo;
-    private float linewidth;
+    private float linewidth=1;
+    private LineStyle lineStyle=LineStyle.SOLID_LINE;
+    private float[] linePattern;
     private Color color=Color.BLACK;
     private Color fillColor=Color.WHITE;
     private Color backgroundColor=Color.WHITE;
     private float lineWidth=1;
     private int lastLineX=0;
     private int lastLineY=0;
+
+
+    private static final float[] DASH_LINE_PATTERN=new float[1];
+    private static final float[] DASH_DOT_LINE_PATTERN=new float[4];
+
 
     public ImageBuffer(int width,int height) {
         this.width=width;
@@ -40,7 +46,7 @@ public class ImageBuffer {
         Graphics2D g=(Graphics2D)image.getGraphics();
         g.setColor(color);
         g.setBackground(backgroundColor);
-        g.setStroke(new BasicStroke(lineWidth));
+        g.setStroke(new BasicStroke(lineWidth,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND));
         //g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 
         g.translate(viewPortInfo.left,viewPortInfo.top);
@@ -87,13 +93,21 @@ public class ImageBuffer {
         this.backgroundColor = backgroundColor;
     }
 
-    public double getLineWidth() {
+    public float getLineWidth() {
         return lineWidth;
     }
 
     public void setLineWidth(float lineWidth) {
         this.lineWidth = lineWidth;
         Graphics2D g=(Graphics2D)image.getGraphics();
+    }
+
+    public LineStyle getLineStyle() {
+        return lineStyle;
+    }
+
+    public void setLineStyle(LineStyle lineStyle) {
+        this.lineStyle = lineStyle;
     }
 
     public void clear(){
@@ -419,7 +433,7 @@ public class ImageBuffer {
     }
 
     /**
-     * 画无边框填充多边形
+     * 画带边框填充多边形
      * @param numPoints 多边形点的个数
      * @param polyPoints 每个点的坐标（依次两个分别为x,y），数组元素个数为 numPoints * 2。
      */

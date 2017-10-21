@@ -2,7 +2,7 @@ package net.royqh.jeasygraphics;
 
 import java.awt.*;
 
-import static net.royqh.jeasygraphics.RenderMode.MANUAL;
+import static net.royqh.jeasygraphics.RenderMode.RENDER_MANUAL;
 
 public class Star {
 
@@ -20,8 +20,8 @@ public class Star {
         JEasyGraphics eg = JEasyGraphics.init(640, 480);
         eg.setBackgroundColor(Color.BLACK);
         eg.setColor(Color.WHITE);
-        eg.setFillColor(new Color(0, 0, 0xff));
-        eg.setRenderMode(MANUAL);
+        eg.setFillColor(Color.RED);
+        eg.setRenderMode(RENDER_MANUAL);
     /* 使用主控台输入/输出 */
         //initConsole();
     /* 将标准输入输出重定向到指定文件 */
@@ -33,6 +33,10 @@ public class Star {
 
         double r = 0;
         for (; ; eg.delayFps(60)) {
+
+            if (eg.kbHit()) {
+                break;
+            }
             r += 0.02;
             if (r > Math.PI * 2) r -= Math.PI * 2;
 
@@ -40,6 +44,7 @@ public class Star {
             paintstar(eg, 300, 200, 100, r);
         }
 
+        eg.close();
     }
 
 
