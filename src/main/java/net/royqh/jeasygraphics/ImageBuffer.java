@@ -48,7 +48,7 @@ public class ImageBuffer {
         this(width,height);
         //init();
         Graphics2D g=(Graphics2D)(this.image.getGraphics());
-        g.drawImage(image,0,0,width-1,height-1,0,0,image.getWidth()-1,image.getHeight()-1,null);
+        g.drawImage(image,0,0,width,height,0,0,image.getWidth(),image.getHeight(),null);
         g.dispose();
     }
 
@@ -156,20 +156,19 @@ public class ImageBuffer {
 
     public void putImage(ImageBuffer imageBuffer,int x,int y) {
         Graphics2D g=getGraphics2D();
-        boolean b=g.drawImage(imageBuffer.getImage(),x,y,null);
-        System.out.println(b);
+        g.drawImage(imageBuffer.getImage(),x,y,null);
         g.dispose();
     }
 
     public void putImage(ImageBuffer imageBuffer,int x,int y, int width, int height,int srcX,int srcY) {
         Graphics2D g=getGraphics2D();
-        g.drawImage(imageBuffer.getImage(),x,y,x+width-1,y+height-1,srcX,srcY,srcX+width-1,srcY+height-1,null);
+        g.drawImage(imageBuffer.getImage(),x,y,x+width,y+height,srcX,srcY,srcX+width,srcY+height,null);
         g.dispose();
     }
 
     public void putImage(ImageBuffer imageBuffer,int x,int y, int width, int height, int srcX, int srcY, int srcWidth,int srcHeight) {
         Graphics2D g=getGraphics2D();
-        g.drawImage(imageBuffer.getImage(),x,y,x+width-1,y+height-1,srcX,srcY,srcX+srcWidth-1,srcY+srcHeight-1,null);
+        g.drawImage(imageBuffer.getImage(),x,y,x+width,y+height,srcX,srcY,srcX+srcWidth,srcY+srcHeight,null);
         g.dispose();
     }
 
@@ -192,6 +191,36 @@ public class ImageBuffer {
                 }
             }
         }
+    }
+
+    public void makeTransparent(Color color) {
+        System.out.println(color.getRGB());
+        for (int i=0;i<getWidth();i++) {
+            for (int j=0;j<getHeight();j++) {
+                if (image.getRGB(i,j) ==color.getRGB()) {
+                    image.setRGB(i, j, 0x00FFFFFF);
+                }
+            }
+        }
+    }
+
+    public void putImageRotate(
+            ImageBuffer imageBuffer,
+            int xCenterDest,/* 旋转中心在目的图像的x坐标 */
+            int yCenterDest,/* 旋转中心在目的图像的y坐标 */
+            int xOriginSrc, /* 源图像复制区域左上角x坐标 */
+            int yOriginSrc, /* 源图像复制区域左上角y坐标 */
+            int widthSrc, /* 源图像复制区域宽度 */
+            int heightSrc, /* 源图像复制区域高度 */
+            int xCenterSrc, /* 旋转中心在源图像的x坐标 */
+            int yCenterSrc,/* 旋转中心在源图像的y坐标 */
+            double radian /* 逆时针旋转角度(弧度) */
+    )  {
+        Graphics2D g=getGraphics2D();
+        g.rotate(radian,xCenterDest,yCenterDest);
+        g.translate(xCenterDest,yCenterDest);
+        g.drawImage(imageBuffer.getImage(),xOriginSrc-xCenterSrc,yOriginSrc-yCenterSrc,widthSrc,heightSrc,null);
+        g.dispose();
     }
 
     public double textHeight(String text){
@@ -672,5 +701,13 @@ public class ImageBuffer {
     }
 
     public void dispose() {
+    }
+
+    public void setOrigin(int x, int y) {
+        setViewPort(x,y,x+width,y+height,false);
+    }
+
+    public void resetOrigin() {
+        clearViewPort();
     }
 }

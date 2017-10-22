@@ -128,6 +128,22 @@ public class JEasyGraphics {
         updateScreen();
     }
 
+    public void putImageRotate(
+            ImageBuffer imageBuffer,
+            int xCenterDest,/* 旋转中心在目的图像的x坐标 */
+            int yCenterDest,/* 旋转中心在目的图像的y坐标 */
+            int xOriginSrc, /* 源图像复制区域左上角x坐标 */
+            int yOriginSrc, /* 源图像复制区域左上角y坐标 */
+            int widthSrc, /* 源图像复制区域宽度 */
+            int heightSrc, /* 源图像复制区域高度 */
+            int xCenterSrc, /* 旋转中心在源图像的x坐标 */
+            int yCenterSrc,/* 旋转中心在源图像的y坐标 */
+            double radian /* 逆时针旋转角度(弧度) */
+    ) {
+        targetPage.putImageRotate(imageBuffer,xCenterDest,yCenterDest,
+                xOriginSrc,yOriginSrc,widthSrc,heightSrc,xCenterSrc,yCenterSrc,radian);
+    }
+
     public double textHeight(String text) {
         return targetPage.textHeight(text);
     }
@@ -169,6 +185,19 @@ public class JEasyGraphics {
 
     public ImageBuffer getTarget() {
         return targetPage;
+    }
+
+    /**
+     * 设置视图原点到(x,y)。以后绘图时，点(x1,y1)对应于实际的点(x+x1,y+y1)
+     * @param x
+     * @param y
+     */
+    public void setOrigin(int x, int y) {
+        targetPage.setOrigin(x,y);
+    }
+
+    public void resetOrigin() {
+        targetPage.resetOrigin();
     }
 
     /**
@@ -856,6 +885,14 @@ public class JEasyGraphics {
     public Point convertCordinate(Point p) {
         return new Point(p.x + targetPage.getViewPort().left,
                 p.y + targetPage.getViewPort().top);
+    }
+
+    public int getWidth() {
+        return targetPage.getWidth();
+    }
+
+    public int getHeight() {
+        return targetPage.getHeight();
     }
 
     public class MainFrame extends JFrame {
