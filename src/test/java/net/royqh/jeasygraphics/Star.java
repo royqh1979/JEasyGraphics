@@ -32,7 +32,7 @@ public class Star {
         //hideConsole();
 
         double r = 0;
-        for (; ; eg.delayFps(60)) {
+        for (; eg.isRun(); eg.delayFps(60)) {
 
             if (eg.kbHit()) {
                 break;

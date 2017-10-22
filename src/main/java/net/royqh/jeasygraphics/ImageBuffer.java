@@ -1,17 +1,17 @@
 package net.royqh.jeasygraphics;
 
+import javax.management.Attribute;
+import javax.xml.soap.Text;
 import java.awt.*;
-import java.awt.geom.Point2D;
+import java.awt.font.LineMetrics;
+import java.awt.font.TextAttribute;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
-import java.awt.image.ColorConvertOp;
-import java.awt.image.ColorModel;
-import java.util.HashSet;
+import java.text.AttributedString;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
@@ -30,7 +30,7 @@ public class ImageBuffer {
     private float lineWidth=1;
     private int lastLineX=0;
     private int lastLineY=0;
-
+    private Font font=null;
 
     private static final float[] DASH_LINE_PATTERN=new float[1];
     private static final float[] DASH_DOT_LINE_PATTERN=new float[4];
@@ -44,12 +44,16 @@ public class ImageBuffer {
         clear();
     }
 
-    public ImageBuffer(BufferedImage image) {
-        this(image.getWidth(),image.getHeight());
-        init();
+    public ImageBuffer(BufferedImage image,int width, int height) {
+        this(width,height);
+        //init();
         Graphics2D g=(Graphics2D)(this.image.getGraphics());
-        g.drawImage(image,0,0,null);
+        g.drawImage(image,0,0,width-1,height-1,0,0,image.getWidth()-1,image.getHeight()-1,null);
         g.dispose();
+    }
+
+    public ImageBuffer(BufferedImage image) {
+        this(image,image.getWidth(),image.getHeight());
     }
 
     private void init() {
@@ -61,6 +65,7 @@ public class ImageBuffer {
         g.setColor(color);
         g.setBackground(backgroundColor);
         g.setStroke(new BasicStroke(lineWidth,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND));
+        g.setFont(getFont());
         //g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
         if (viewPortInfo.clipOn) {
             g.setClip(viewPortInfo.left,viewPortInfo.top,viewPortInfo.right-viewPortInfo.left,
@@ -108,6 +113,9 @@ public class ImageBuffer {
 
     public void setBackgroundColor(Color backgroundColor) {
         this.backgroundColor = backgroundColor;
+        Map<TextAttribute,Object> attrs=new HashMap<>();
+        attrs.put(TextAttribute.BACKGROUND,backgroundColor);
+        font=getFont().deriveFont(attrs);
     }
 
     public float getLineWidth() {
@@ -148,30 +156,107 @@ public class ImageBuffer {
 
     public void putImage(ImageBuffer imageBuffer,int x,int y) {
         Graphics2D g=getGraphics2D();
-        g.drawImage(imageBuffer.getImage(),x,y,null);
+        boolean b=g.drawImage(imageBuffer.getImage(),x,y,null);
+        System.out.println(b);
         g.dispose();
     }
 
     public void putImage(ImageBuffer imageBuffer,int x,int y, int width, int height,int srcX,int srcY) {
         Graphics2D g=getGraphics2D();
-        g.drawImage(image,x,y,x+width,y+height,srcX,srcY,srcX+width,srcY+height,null);
+        g.drawImage(imageBuffer.getImage(),x,y,x+width-1,y+height-1,srcX,srcY,srcX+width-1,srcY+height-1,null);
         g.dispose();
     }
 
     public void putImage(ImageBuffer imageBuffer,int x,int y, int width, int height, int srcX, int srcY, int srcWidth,int srcHeight) {
         Graphics2D g=getGraphics2D();
-        g.drawImage(image,x,y,x+width,y+height,srcX,srcY,srcX+srcWidth,srcY+srcHeight,null);
+        g.drawImage(imageBuffer.getImage(),x,y,x+width-1,y+height-1,srcX,srcY,srcX+srcWidth-1,srcY+srcHeight-1,null);
         g.dispose();
     }
 
-    public void putImageTransparent(ImageBuffer imageBuffer,int x,int y, int width, int height, int srcX, int srcY, int srcWidth,int srcHeight,Color transColor) {
+    public void putImageTransparent(ImageBuffer imageBuffer,int x,int y, int width, int height, int srcX, int srcY, Color transColor) {
         /** TODO **/
-        BufferedImage image=new BufferedImage(srcWidth,srcHeight, TYPE_INT_ARGB);
-        Graphics2D g=image.createGraphics();
-        g.drawImage(imageBuffer.getImage(),0,0,srcWidth,srcHeight,srcX,srcY,srcX+srcWidth,srcY+srcHeight,null);
-        g.dispose();
-
+        BufferedImage srcImage=imageBuffer.getImage();
+        x=x+viewPortInfo.left;
+        y=y+viewPortInfo.top;
+        for (int i=0;i<width;i++) {
+            if (x+i>=image.getWidth() || (viewPortInfo.clipOn && x+i>viewPortInfo.right) || srcX+i >=srcImage.getWidth()) {
+                break;
+            }
+            for (int j=0;j<height;j++) {
+                if (y+j>=image.getHeight() || (viewPortInfo.clipOn && y+j>viewPortInfo.bottom) || srcY+j >=srcImage.getHeight()) {
+                    break;
+                }
+                int rgb=srcImage.getRGB(srcX+i,srcY+j);
+                if (rgb!=transColor.getRGB()) {
+                    image.setRGB(x+i,y+j,rgb);
+                }
+            }
+        }
     }
+
+    public double textHeight(String text){
+        return textBound(text).getHeight();
+    }
+
+    public double textWidth(String text) {
+        return textBound(text).getWidth();
+    }
+
+    public Rectangle2D textBound(String text) {
+        Graphics2D g=getGraphics2D();
+        return g.getFontMetrics().getStringBounds(text,g);
+    }
+
+    public void outTextXY(int x,int y,String text) {
+        Graphics2D g=getGraphics2D();
+        g.drawString(text, x, y+g.getFont().getSize());
+        g.dispose();
+    }
+
+    public void xyPrintf(int x,int y,String fmt , Object... args) {
+        outTextXY(x,y,String.format(fmt,args));
+    }
+
+    public Font getFont() {
+        if (font==null) {
+            Graphics2D g=image.createGraphics();
+            setFont(g.getFont());
+            g.dispose();
+        }
+        return font;
+    }
+
+    public void setFont(Font font) {
+        Map<TextAttribute,Object> attributes=new HashMap<>();
+        attributes.put(TextAttribute.BACKGROUND,backgroundColor);
+        this.font = font.deriveFont(attributes);
+    }
+
+    public void setFont(int height,String fontName) {
+        setFont(height,fontName,false,false,false,false);
+    }
+
+    public void setFont(int height,String fontName,boolean isBold, boolean isItalic ,boolean isStrikeThrough,boolean isUnderLine) {
+        Map<TextAttribute,Object> attributes=new HashMap<>();
+        attributes.put(TextAttribute.FAMILY,fontName);
+        attributes.put(TextAttribute.SIZE,height);
+        if (isBold) {
+            attributes.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD);
+        }
+        if (isItalic) {
+            attributes.put(TextAttribute.POSTURE, TextAttribute.POSTURE_OBLIQUE) ;
+        }
+        if (isStrikeThrough) {
+            attributes.put(TextAttribute.STRIKETHROUGH,TextAttribute.STRIKETHROUGH_ON);
+        }
+        if (isUnderLine) {
+            attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
+        }
+        attributes.put(TextAttribute.BACKGROUND,backgroundColor);
+        setFont(new Font(attributes));
+    }
+
+    
 
     /**
      *  在指定图像页上画一条从(x1,y1)到(x2,y2)的线
@@ -586,4 +671,6 @@ public class ImageBuffer {
         lastLineY=lastLineY+viewPortInfo.top;
     }
 
+    public void dispose() {
+    }
 }

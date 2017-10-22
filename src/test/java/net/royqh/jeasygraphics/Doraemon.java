@@ -8,7 +8,6 @@ import static java.awt.Color.WHITE;
 public class Doraemon {
     public static void main(String[] args){
         JEasyGraphics eg=JEasyGraphics.init(800,600);
-        System.out.println("lala");
         //setorigin(400, 300);
         eg.setViewPort(400,300,500,400,false);
         // 使用白色填充背景
@@ -98,7 +97,10 @@ public class Doraemon {
         eg.line(-16, 40, 16, 40);
         eg.line(-18, 44, 18, 44);
 
+        eg.setFont(18,"微软雅黑",true,true,false,true);
+        eg.outTextXY(-400,-300, "按任意键退出……");
         eg.pause();
+
         eg.close();
     }
 }
