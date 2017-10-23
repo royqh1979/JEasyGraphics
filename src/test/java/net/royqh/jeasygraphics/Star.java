@@ -12,8 +12,7 @@ public class Star {
             pt[n * 2] = (int) (-Math.cos(Math.PI * 4 / 5 * n + a) * r + x);
             pt[n * 2 + 1] = (int) (Math.sin(Math.PI * 4 / 5 * n + a) * r + y);
         }
-        eg.drawPoly(5,pt);
-        eg.fillPoly(5, pt);
+        eg.fillPoly(5,pt);
     }
 
     public static void main(String[] args) {

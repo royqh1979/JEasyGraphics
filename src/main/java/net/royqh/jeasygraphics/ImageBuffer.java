@@ -1,13 +1,9 @@
 package net.royqh.jeasygraphics;
 
-import javax.management.Attribute;
-import javax.xml.soap.Text;
 import java.awt.*;
-import java.awt.font.LineMetrics;
 import java.awt.font.TextAttribute;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.text.AttributedString;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -27,6 +23,8 @@ public class ImageBuffer {
     private Color color=Color.BLACK;
     private Color fillColor=Color.WHITE;
     private Color backgroundColor=Color.WHITE;
+    private FillPattern fillPattern=FillPattern.SOLID_FILL;
+    private Paint paint=null;
     private float lineWidth=1;
     private int lastLineX=0;
     private int lastLineY=0;
@@ -62,11 +60,12 @@ public class ImageBuffer {
 
     public Graphics2D getGraphics2D() {
         Graphics2D g=(Graphics2D)image.getGraphics();
-        g.setColor(color);
         g.setBackground(backgroundColor);
+        g.setColor(color);
         g.setStroke(new BasicStroke(lineWidth,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND));
         g.setFont(getFont());
         //g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+        //g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         if (viewPortInfo.clipOn) {
             g.setClip(viewPortInfo.left,viewPortInfo.top,viewPortInfo.right-viewPortInfo.left,
                     viewPortInfo.bottom-viewPortInfo.top);
@@ -97,6 +96,7 @@ public class ImageBuffer {
 
     public void setColor(Color color) {
         this.color = color;
+        updatePaint();
     }
 
     public Color getFillColor() {
@@ -116,6 +116,7 @@ public class ImageBuffer {
         Map<TextAttribute,Object> attrs=new HashMap<>();
         attrs.put(TextAttribute.BACKGROUND,backgroundColor);
         font=getFont().deriveFont(attrs);
+        updatePaint();
     }
 
     public float getLineWidth() {
@@ -484,11 +485,14 @@ public class ImageBuffer {
      * @param bottom
      */
     public void bar(int left, int top, int right, int bottom ) {
-        fillRectangle(left,top,right,bottom);
+        Graphics2D g=getGraphics2D();
+        setPaint(g);
+        g.fillRect(left,top,right-left,bottom-top);
+        g.dispose();
     }
 
     /**
-     * 绘制无边框填充矩形
+     * 绘制带边框填充矩形
      * @param left
      * @param top
      * @param right
@@ -496,13 +500,15 @@ public class ImageBuffer {
      */
     public void fillRectangle(int left, int top, int right, int bottom )  {
         Graphics2D g=getGraphics2D();
-        g.setColor(fillColor);
+        setPaint(g);
         g.fillRect(left,top,right-left,bottom-top);
+        g.setColor(color);
+        g.drawRect(left,top,right-left,bottom-top);
         g.dispose();
     }
 
     /**
-     *  绘制无边框填充圆角矩形
+     *  绘制带边框填充圆角矩形
      *
      * @param left
      * @param top
@@ -515,7 +521,7 @@ public class ImageBuffer {
     }
 
     /**
-     * 绘制无边框填充椭圆角矩形
+     * 绘制带边框填充椭圆角矩形
      * @param left
      * @param top
      * @param right
@@ -525,13 +531,15 @@ public class ImageBuffer {
      */
     public void fillRoundRect(int left, int top, int right, int bottom, int xRadius,int yRadius)  {
         Graphics2D g=getGraphics2D();
-        g.setColor(fillColor);
+        setPaint(g);
         g.fillRoundRect(left,top,right-left,bottom-top,xRadius,yRadius);
+        g.setColor(color);
+        g.drawRoundRect(left,top,right-left,bottom-top,xRadius,yRadius);
         g.dispose();
     }
 
     /**
-     * 绘制无边框填充扇形
+     * 绘制边框填充扇形
      *
      * @param x
      * @param y
@@ -544,7 +552,7 @@ public class ImageBuffer {
     }
 
     /**
-     * 绘制无边框填充扇形
+     * 绘制带边框填充扇形
      * 
      * @param x
      * @param y
@@ -555,13 +563,28 @@ public class ImageBuffer {
      */
     public void fillArc(int x,int y,int startAngle, int endAngle, int xRadius,int yRadius){
         Graphics2D g=getGraphics2D();
-        g.setColor(fillColor);
+        setPaint(g);
         g.fillArc(x,y,xRadius,yRadius,startAngle,endAngle-startAngle);
+        g.setColor(color);
+        //Todo;
         g.dispose();
     }
 
+    private void setPaint(Graphics2D g) {
+        switch (fillPattern) {
+            case EMPTY_FILL:
+                g.setPaint(backgroundColor);
+                break;
+            case SOLID_FILL:
+                g.setPaint(fillColor);
+                break;
+            default:
+                g.setPaint(paint);
+        }
+    }
+
     /**
-     * 绘制无边框填充扇形
+     * 绘制带边框填充扇形
      *
      * @param x
      * @param y
@@ -579,7 +602,7 @@ public class ImageBuffer {
     }
     
     /**
-     * 绘制无边框填充圆形
+     * 绘制带边框填充圆形
      *
      * @param x
      * @param y
@@ -590,7 +613,7 @@ public class ImageBuffer {
     }
 
     /**
-     * 绘制无边框填充椭圆
+     * 绘制带边框填充椭圆
      * @param x
      * @param y
      * @param xRadius
@@ -598,26 +621,30 @@ public class ImageBuffer {
      */
     public void fillEllipse(int x, int y, int xRadius, int yRadius) {
         Graphics2D g=getGraphics2D();
-        g.setColor(fillColor);
+        setPaint(g);
         g.fillOval(x-xRadius,y-yRadius,xRadius*2,yRadius*2);
+        g.setColor(color);
+        g.drawOval(x-xRadius,y-yRadius,xRadius*2,yRadius*2);
         g.dispose();
     }
 
     /**
-     * 画无边框填充多边形
+     * 画带边框填充多边形
      * @param xPoints  每个点的X坐标
      * @param yPoints  每个点的Y坐标
      * @param numPoints 多边形点的个数
      */
     public void fillPoly(int[] xPoints, int[] yPoints, int numPoints) {
         Graphics2D g=getGraphics2D();
-        g.setColor(fillColor);
+        setPaint(g);
         g.fillPolygon(xPoints,yPoints,numPoints);
+        g.setColor(color);
+        g.drawPolygon(xPoints,yPoints,numPoints);
         g.dispose();
     }
 
     /**
-     * 画无边框填充多边形
+     * 画带边框填充多边形
      * @param numPoints 多边形点的个数
      * @param polyPoints 每个点的坐标（依次两个分别为x,y），数组元素个数为 numPoints * 2。
      */
@@ -709,5 +736,27 @@ public class ImageBuffer {
 
     public void resetOrigin() {
         clearViewPort();
+    }
+
+    public FillPattern getFillPattern() {
+        return fillPattern;
+    }
+
+    public void setFillPattern(FillPattern fillPattern) {
+        checkNotNull(fillPattern);
+        this.fillPattern = fillPattern;
+        updatePaint();
+    }
+
+    private void updatePaint() {
+        switch (fillPattern) {
+            case VERTICAL_FILL:
+            case SLASH_FILL:
+            case BKSLASH_FILL:
+            case HATCH_FILL:
+            case XHATCH_FILL:
+            case HORIZONTAL_FILL:
+                paint=new LineTexturePaint(color,backgroundColor,fillPattern);
+        }
     }
 }

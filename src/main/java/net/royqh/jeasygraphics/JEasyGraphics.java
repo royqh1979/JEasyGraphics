@@ -895,6 +895,10 @@ public class JEasyGraphics {
         return targetPage.getHeight();
     }
 
+    public void setFillPattern(FillPattern fillPattern) {
+        targetPage.setFillPattern(fillPattern);
+    }
+
     public class MainFrame extends JFrame {
 
         public MainFrame(int width, int height) {

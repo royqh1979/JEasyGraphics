@@ -18,26 +18,19 @@ public class Doraemon {
         eg.setFillColor(new Color(7, 190, 234));						// 头
         eg.setColor(BLACK);
         eg.fillRoundRect(-135, -206, 135, 54, 248, 248);
-        eg.roundRect(-135, -206, 135, 54, 248, 248);
 
         eg.setFillColor(WHITE);								// 脸
         eg.fillEllipse(0, -46, 115, 95);
-        eg.ellipse(0,-46,115,95);
 
         eg.fillRoundRect(-63, -169, 0, -95, 56, 56);			// 右眼
-        eg.roundRect(-63, -169, 0, -95, 56, 56);
         eg.fillRoundRect(0, -169,  63, -95, 56, 56);			// 左眼
-        eg.roundRect(0, -169,  63, -95, 56, 56);
 
         eg.setFillColor(BLACK);
         eg.fillCircle(-16, -116, 6);							// 右眼球
-        eg.circle(-16, -116, 6);
         eg.fillCircle( 16, -116, 6);							// 左眼球
-        eg.circle(-16, -116, 6);
 
         eg.setFillColor(new Color(201, 62, 0));						// 鼻子
         eg.fillCircle(0, -92, 15);
-        eg.circle(0, -92, 15);
 
         eg.line(0, -77, 0, -4);								// 人中
         eg.arc((-108+108)/2, (-220-4)/2,  180 * 5 / 4, 180 * 7 / 4,(108-(-108))/2,(-4-(-220))/2);	// 嘴
@@ -62,21 +55,16 @@ public class Doraemon {
 
         eg.setFillColor(WHITE);						// 手
         eg.fillCircle(-140, 99, 27);
-        eg.circle(-140, 99, 27);
         eg.fillCircle( 140, 99, 27);
-        eg.circle(140, 99, 27);
         eg.fillRoundRect(-112, 178, -2, 205, 24, 24);	// 脚
-        eg.roundRect(-112, 178, -2, 205, 24, 24);
         eg.fillRoundRect( 2, 178,  112, 205, 24, 24);
-        eg.roundRect(2, 178,  112, 205, 24, 24);
 
         eg.setFillColor(new Color(7, 190, 234));				// 身体填充蓝色
         eg.floodFill(0, 100, BLACK);
 
         eg.setFillColor(WHITE);						// 肚皮
         eg.fillCircle(0, 81, 75);
-        eg.circle(0, 81, 75);
-        eg.fillRectangle(-60, 4, 60, 24);				// 用白色矩形擦掉多余的肚皮
+        eg.bar(-60, 4, 60, 24);				// 用白色矩形擦掉多余的肚皮
 
         eg.pie(-58, 23, 58, 139, 180, 0);				// 口袋
 
