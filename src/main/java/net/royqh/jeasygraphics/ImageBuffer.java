@@ -1,5 +1,7 @@
 package net.royqh.jeasygraphics;
 
+import net.royqh.jeasygraphics.stroke.SolidStroke;
+
 import java.awt.*;
 import java.awt.font.TextAttribute;
 import java.awt.geom.Rectangle2D;
@@ -17,21 +19,18 @@ public class ImageBuffer {
     private int width;
     private int height;
     private ViewPortInfo viewPortInfo;
-    private float linewidth=1;
     private LineStyle lineStyle=LineStyle.SOLID_LINE;
-    private float[] linePattern;
+    private Stroke stroke=new SolidStroke(1);
     private Color color=Color.BLACK;
     private Color fillColor=Color.WHITE;
     private Color backgroundColor=Color.WHITE;
     private FillPattern fillPattern=FillPattern.SOLID_FILL;
-    private Paint paint=null;
+    private Paint paint=Color.WHITE;
     private float lineWidth=1;
     private int lastLineX=0;
     private int lastLineY=0;
     private Font font=null;
-
-    private static final float[] DASH_LINE_PATTERN=new float[1];
-    private static final float[] DASH_DOT_LINE_PATTERN=new float[4];
+    private AlphaComposite composite=AlphaComposite.SrcAtop;
 
 
     public ImageBuffer(int width,int height) {
@@ -62,14 +61,16 @@ public class ImageBuffer {
         Graphics2D g=(Graphics2D)image.getGraphics();
         g.setBackground(backgroundColor);
         g.setColor(color);
-        g.setStroke(new BasicStroke(lineWidth,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND));
+        g.setStroke(stroke);
         g.setFont(getFont());
         //g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
         //g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         if (viewPortInfo.clipOn) {
-            g.setClip(viewPortInfo.left,viewPortInfo.top,viewPortInfo.right-viewPortInfo.left,
-                    viewPortInfo.bottom-viewPortInfo.top);
+            g.setClip(viewPortInfo.left, viewPortInfo.top, viewPortInfo.right - viewPortInfo.left,
+                    viewPortInfo.bottom - viewPortInfo.top);
         }
+
+        g.setComposite(composite);
         g.translate(viewPortInfo.left,viewPortInfo.top);
         return g;
     }
@@ -99,6 +100,18 @@ public class ImageBuffer {
         updatePaint();
     }
 
+    public AlphaComposite getComposite() {
+        return composite;
+    }
+
+    public void setComposite(AlphaComposite composite) {
+        this.composite = composite;
+    }
+
+    public void setComposite() {
+        this.composite = AlphaComposite.SrcAtop;
+    }
+
     public Color getFillColor() {
         return fillColor;
     }
@@ -125,7 +138,7 @@ public class ImageBuffer {
 
     public void setLineWidth(float lineWidth) {
         this.lineWidth = lineWidth;
-        Graphics2D g=(Graphics2D)image.getGraphics();
+        updateStroke();
     }
 
     public LineStyle getLineStyle() {
@@ -133,7 +146,13 @@ public class ImageBuffer {
     }
 
     public void setLineStyle(LineStyle lineStyle) {
+        checkNotNull(lineStyle);
         this.lineStyle = lineStyle;
+        updateStroke();
+    }
+
+    private void updateStroke() {
+        this.stroke=lineStyle.createStroke(lineWidth);
     }
 
     public void clear(){
@@ -195,7 +214,6 @@ public class ImageBuffer {
     }
 
     public void makeTransparent(Color color) {
-        System.out.println(color.getRGB());
         for (int i=0;i<getWidth();i++) {
             for (int j=0;j<getHeight();j++) {
                 if (image.getRGB(i,j) ==color.getRGB()) {
@@ -486,7 +504,7 @@ public class ImageBuffer {
      */
     public void bar(int left, int top, int right, int bottom ) {
         Graphics2D g=getGraphics2D();
-        setPaint(g);
+        g.setPaint(paint);
         g.fillRect(left,top,right-left,bottom-top);
         g.dispose();
     }
@@ -500,7 +518,7 @@ public class ImageBuffer {
      */
     public void fillRectangle(int left, int top, int right, int bottom )  {
         Graphics2D g=getGraphics2D();
-        setPaint(g);
+        g.setPaint(paint);
         g.fillRect(left,top,right-left,bottom-top);
         g.setColor(color);
         g.drawRect(left,top,right-left,bottom-top);
@@ -531,7 +549,7 @@ public class ImageBuffer {
      */
     public void fillRoundRect(int left, int top, int right, int bottom, int xRadius,int yRadius)  {
         Graphics2D g=getGraphics2D();
-        setPaint(g);
+        g.setPaint(paint);
         g.fillRoundRect(left,top,right-left,bottom-top,xRadius,yRadius);
         g.setColor(color);
         g.drawRoundRect(left,top,right-left,bottom-top,xRadius,yRadius);
@@ -563,24 +581,11 @@ public class ImageBuffer {
      */
     public void fillArc(int x,int y,int startAngle, int endAngle, int xRadius,int yRadius){
         Graphics2D g=getGraphics2D();
-        setPaint(g);
+        g.setPaint(paint);
         g.fillArc(x,y,xRadius,yRadius,startAngle,endAngle-startAngle);
         g.setColor(color);
         //Todo;
         g.dispose();
-    }
-
-    private void setPaint(Graphics2D g) {
-        switch (fillPattern) {
-            case EMPTY_FILL:
-                g.setPaint(backgroundColor);
-                break;
-            case SOLID_FILL:
-                g.setPaint(fillColor);
-                break;
-            default:
-                g.setPaint(paint);
-        }
     }
 
     /**
@@ -621,7 +626,7 @@ public class ImageBuffer {
      */
     public void fillEllipse(int x, int y, int xRadius, int yRadius) {
         Graphics2D g=getGraphics2D();
-        setPaint(g);
+        g.setPaint(paint);
         g.fillOval(x-xRadius,y-yRadius,xRadius*2,yRadius*2);
         g.setColor(color);
         g.drawOval(x-xRadius,y-yRadius,xRadius*2,yRadius*2);
@@ -636,7 +641,7 @@ public class ImageBuffer {
      */
     public void fillPoly(int[] xPoints, int[] yPoints, int numPoints) {
         Graphics2D g=getGraphics2D();
-        setPaint(g);
+        g.setPaint(paint);
         g.fillPolygon(xPoints,yPoints,numPoints);
         g.setColor(color);
         g.drawPolygon(xPoints,yPoints,numPoints);
@@ -749,14 +754,10 @@ public class ImageBuffer {
     }
 
     private void updatePaint() {
-        switch (fillPattern) {
-            case VERTICAL_FILL:
-            case SLASH_FILL:
-            case BKSLASH_FILL:
-            case HATCH_FILL:
-            case XHATCH_FILL:
-            case HORIZONTAL_FILL:
-                paint=new LineTexturePaint(color,backgroundColor,fillPattern);
-        }
+        paint=fillPattern.createPattern(color, fillColor, backgroundColor);
+    }
+
+    public void setWriteMode(AlphaComposite composite) {
+        setComposite(composite);
     }
 }

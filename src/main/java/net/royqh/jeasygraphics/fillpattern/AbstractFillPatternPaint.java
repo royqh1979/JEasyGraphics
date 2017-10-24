@@ -1,4 +1,4 @@
-package net.royqh.jeasygraphics;
+package net.royqh.jeasygraphics.fillpattern;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -6,44 +6,25 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 
-public class LineTexturePaint implements Paint {
-    private Paint paint;
-    private final static int SIZE = 12;
-    private final static Rectangle RECT =new Rectangle(SIZE, SIZE);
+public abstract class AbstractFillPatternPaint implements Paint {
+    protected Paint paint;
+    protected final static int SIZE = 12;
+    protected final static Rectangle RECT =new Rectangle(SIZE, SIZE);
 
-    public LineTexturePaint(Color color,Color backColor,FillPattern pattern) {
-                generateTexturePaint(color,backColor,pattern);
+    public AbstractFillPatternPaint(Color color, Color backColor) {
+                generateTexturePaint(color,backColor);
     }
 
-    private void generateTexturePaint(Color color, Color backColor, FillPattern pattern) {
+    protected abstract void drawTexture(Graphics2D g);
+
+    private void generateTexturePaint(Color color, Color backColor) {
         BufferedImage image=new BufferedImage(SIZE, SIZE,BufferedImage.TYPE_INT_ARGB);
         Graphics2D g=image.createGraphics();
         g.setColor(backColor);
         //g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
         g.fillRect(0,0, SIZE, SIZE);
         g.setColor(color);
-        switch(pattern) {
-            case VERTICAL_FILL:
-                g.drawLine(0, SIZE /2, SIZE -1, SIZE /2);
-                break;
-            case SLASH_FILL:
-                g.drawLine(0,SIZE-1,SIZE-1,0);
-                break;
-            case BKSLASH_FILL:
-                g.drawLine(0,0, SIZE -1, SIZE -1);
-                break;
-            case HATCH_FILL:
-                g.drawLine(0, SIZE /2, SIZE -1, SIZE /2);
-                g.drawLine(SIZE /2,0, SIZE /2, SIZE -1);
-                break;
-            case XHATCH_FILL:
-                g.drawLine(0,SIZE-1,SIZE-1,0);
-                g.drawLine(0,0, SIZE -1, SIZE -1);
-                break;
-            case HORIZONTAL_FILL:
-                g.drawLine(SIZE /2,0, SIZE /2, SIZE -1);
-                break;
-        }
+        drawTexture(g);
         g.dispose();
         paint=new TexturePaint(image, RECT);
     }

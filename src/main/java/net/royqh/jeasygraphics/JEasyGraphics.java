@@ -14,6 +14,7 @@ import java.text.AttributedString;
 import java.util.Scanner;
 import java.util.concurrent.Semaphore;
 
+import static com.google.common.base.Preconditions.checkElementIndex;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static net.royqh.jeasygraphics.RenderMode.RENDER_AUTO;
 import static net.royqh.jeasygraphics.RenderMode.RENDER_MANUAL;
@@ -899,6 +900,18 @@ public class JEasyGraphics {
         targetPage.setFillPattern(fillPattern);
     }
 
+    public void setComposite(AlphaComposite composite) {
+        targetPage.setComposite(composite);
+    }
+
+    public void setComposite() {
+        targetPage.setComposite();
+    }
+
+    public void setWriteMode(AlphaComposite composite) {
+        targetPage.setWriteMode(composite);
+    }
+
     public class MainFrame extends JFrame {
 
         public MainFrame(int width, int height) {
@@ -964,9 +977,11 @@ public class JEasyGraphics {
 
         private void onMouseEvent(MouseEvent e) {
             lastMouseTime = System.nanoTime();
-            MouseMsg mouseMsg = new MouseMsg(targetPage.getViewPort().left,
-                    targetPage.getViewPort().top,
-                    e);
+            if (targetPage!=null) {
+                MouseMsg mouseMsg = new MouseMsg(targetPage.getViewPort().left,
+                        targetPage.getViewPort().top,
+                        e);
+            }
             mouseMsgSemaphore.release(1);
         }
 

@@ -6,7 +6,7 @@ import java.awt.*;
 import static java.awt.Color.BLUE;
 import static java.awt.Color.WHITE;
 
-public class TestFill {
+public class TestFillPattern {
 
     public static void main(String[] args){
         JEasyGraphics eg=JEasyGraphics.init(800,600);
