@@ -1,5 +1,6 @@
 package net.royqh.jeasygraphics;
 
+import javax.swing.*;
 import java.awt.*;
 
 import static java.awt.Color.BLUE;
