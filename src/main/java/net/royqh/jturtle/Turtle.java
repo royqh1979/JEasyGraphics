@@ -688,8 +688,8 @@ public class Turtle {
      * set origin to point(x,y)
      * 将视图原点设置到点(x,y)
      *
-     * @param x
-     * @param y
+     * @param x x cordinate of the origin
+     * @param y y cordinate of the origin
      */
     public void setOrigin(int x, int y)
     {

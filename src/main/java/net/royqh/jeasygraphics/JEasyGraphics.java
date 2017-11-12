@@ -120,6 +120,7 @@ public class JEasyGraphics {
 
     /**
      * copy an image to the window
+     * 将图片复制到屏幕
      * @param imageBuffer the image to be copied
      * @param x the x cordinate on the window of the image's left-top corner
      * @param y the y cordinate on the window of the image's left-top corner
@@ -131,6 +132,7 @@ public class JEasyGraphics {
 
     /**
      * copy an image to the window
+     * 将图片复制到屏幕
      * @param imageBuffer  the image to be copied
      * @param x  the x cordinate of the left-top corner of the copied area on the window
      * @param y  the y cordinate of the left-top corner of the copied area on the window
@@ -146,6 +148,7 @@ public class JEasyGraphics {
 
     /**
      * copy an image to the window
+     * 将图片复制到屏幕
      * @param imageBuffer  the image to be copied
      * @param x  the x cordinate of the left-top corner of the copied area on the window
      * @param y  the y cordinate of the left-top corner of the copied area on the window
@@ -163,6 +166,7 @@ public class JEasyGraphics {
 
     /**
      * copy an image to the window and transparent(ignore) the specified color
+     * 将图片复制到屏幕(忽略指定颜色的点)
      * @param imageBuffer  the image to be copied
      * @param x the x cordinate of the left-top corner of the copied area on the window
      * @param y the y cordinate of the left-top corner of the copied area on the window
@@ -179,6 +183,7 @@ public class JEasyGraphics {
 
     /**
      * copy an rotated image to the screen
+     * 将图片旋转后复制到屏幕
      * @param imageBuffer  the image to be copied
      * @param xCenterDest the x cordinate of rotation center of the copied area on the window
      * @param yCenterDest the y cordinate of rotation center of the copied area on the window
@@ -208,6 +213,7 @@ public class JEasyGraphics {
 
     /**
      * Calcuate height of the outputted text with current font
+     * 计算文字显示后的高度
      * @param text the text to be outputted on the screen
      * @return height of the outputted text with current font
      */
@@ -217,6 +223,8 @@ public class JEasyGraphics {
 
     /**
      * Calcuate width of the outputted text with current font
+     * 计算文字显示后的宽度
+     *
      * @param text the text to be outputted on the screen
      * @return width of the outputted text with current font
      */
@@ -226,6 +234,7 @@ public class JEasyGraphics {
 
     /**
      * Calcuate bound of the outputted text with current font
+     * 计算文字显示后的大小
      * @param text the text to be outputted on the screen
      * @return a rectangle reflecting the bound of the outputted text with current font
      */
@@ -235,6 +244,8 @@ public class JEasyGraphics {
 
     /**
      * get current font setting of the window
+     * 获取当前字体
+     *
      * @return
      */
     public Font getFont() {
@@ -243,6 +254,8 @@ public class JEasyGraphics {
 
     /**
      * set the font of the window
+     * 设置当前字体
+     *
      * @param font the font to be used
      */
     public void setFont(Font font) {
@@ -251,6 +264,8 @@ public class JEasyGraphics {
 
     /**
      * set the font of the window
+     * 设置当前字体
+     *
      * @param height  height of the font
      * @param fontName name of the font
      */
@@ -260,6 +275,8 @@ public class JEasyGraphics {
 
     /**
      * set the font of the window
+     * 设置字体
+     *
      * @param height height of the font
      * @param fontName name of the font
      * @param isBold if the font is bold
@@ -273,6 +290,8 @@ public class JEasyGraphics {
 
     /**
      * print a text on the specified window position
+     * 在屏幕指定位置显示文字
+     *
      * @param x the x cordinate of the left-top corner of the bound rectangle of the outputted text
      * @param y the y cordinate of the left-top corner of the bound rectangle of the outputted text
      * @param text the text to be outputted
@@ -284,7 +303,8 @@ public class JEasyGraphics {
 
     /**
      * print a text like the printf function of The C Language on the specified window position
-     * @See String#format
+     * 在屏幕指定文字显示格式化后的文字
+     * @see String#format
      * @param x the x cordinate of the left-top corner of the bound rectangle of the outputted text
      * @param y the y cordinate of the left-top corner of the bound rectangle of the outputted text
      * @param fmt the format string
@@ -297,6 +317,8 @@ public class JEasyGraphics {
 
     /**
      * get the image serving as the current window's buffer
+     * 获取当前窗口的缓存区图片
+     *
      * @return the buffer image
      */
     public ImageBuffer getTarget() {
@@ -340,6 +362,8 @@ public class JEasyGraphics {
 
     /**
      * get current renderMode for the window
+     * 获取当前渲染模式
+     *
      * @return the renderMode
      */
     public RenderMode getRenderMode() {
@@ -348,6 +372,8 @@ public class JEasyGraphics {
 
     /**
      * set current renderMode
+     * 设置渲染模式
+     *
      * @param renderMode
      */
     public void setRenderMode(RenderMode renderMode) {
@@ -375,6 +401,38 @@ public class JEasyGraphics {
      */
     public void line(int x1, int y1, int x2, int y2) {
         targetPage.line(x1, y1, x2, y2);
+        updateScreen();
+    }
+
+    /**
+     * move current point to (x,y)
+     * 移动当前点坐标到 (x,y)
+     * @param x x cordinate of current point
+     * @param y y cordinate of current point
+     */
+    public void moveTo(int x,int y) {
+        targetPage.moveTo(x,y);
+    }
+
+    /**
+     * draw a line from current point to (x,y), then current point move to (x,y)
+     * 从当前点画线到(x,y)。画线后当前点坐标变为（x,y）
+     * @param x x cordinate of new current point
+     * @param y y cordinate of new current point
+     */
+    public void lineTo(int x,int y) {
+        targetPage.lineTo(x,y);
+        updateScreen();
+    }
+
+    /**
+     * draw from current point(x,y) to (x+dx,y+dy)
+     *  从当前点(x,y)画线到(x+dx,y+dy). 画线后当前点坐标变为（x+dx,y+dy）
+     * @param dx delta x
+     * @param dy delta y
+     */
+    public void lineRel(int dx,int dy){
+        targetPage.lineRel(dx,dy);
         updateScreen();
     }
 
@@ -474,10 +532,10 @@ public class JEasyGraphics {
      * draw an ellipse
      * 画椭圆
      *
-     * @param x x cordinate of the ellipse's center
-     * @param y x cordinate of the elipse's center
-     * @param xRadius  radius on the x-axis of the elipse's center
-     * @param yRadius  radius on the y-axis of the elipse's center
+     * @param x x cordinate of ellipse's center
+     * @param y y cordinate of ellipse's center
+     * @param xRadius radius on x-axis
+     * @param yRadius radius on y-axis
      */
     public void ellipse(int x, int y, int xRadius, int yRadius) {
         targetPage.ellipse(x, y, xRadius, yRadius);
@@ -485,8 +543,9 @@ public class JEasyGraphics {
     }
 
     /**
-     * floodfill
+     * floodfill start from point(x,y)
      * the area to be fill must be enclosed by the borderColor, or whole window will be filled!
+     * 从点(x,y)开始进行flood填充(使用fillColor),直到遇到borderColor为止
      * @param x x cordinate of the start point
      * @param y y cordinate of the start point
      * @param borderColor border color of the fill area
@@ -498,6 +557,7 @@ public class JEasyGraphics {
 
     /**
      * get color of the specified point
+     * 获取指定点的颜色
      * @param x x cordinate of the point
      * @param y y cordinate of the point
      * @return the point's color
@@ -508,6 +568,7 @@ public class JEasyGraphics {
 
     /**
      * set color of the specified point
+     * 设置指定点的颜色
      * @param x x cordinate of the point
      * @param y y cordinate of the point
      * @param color color to be set
@@ -594,6 +655,7 @@ public class JEasyGraphics {
 
     /**
      * draw an filled ellipse sector with border
+     * 绘制带边框填充扇形
      * @param left left of the bounded rectangle of the ellipse
      * @param top top of the bounded rectangle of the ellipse
      * @param right right of the bounded rectangle of the ellipse
@@ -763,6 +825,8 @@ public class JEasyGraphics {
 
     /**
      * test if the program is running  (always true)
+     * 测试当前程序是否在运行(永远返回true)
+     *
      * @return
      */
     public boolean isRun() {
@@ -813,6 +877,8 @@ public class JEasyGraphics {
 
     /**
      * set title of the window
+     * 设置窗口标题
+     *
      * @param title  title text
      */
     public void setTitle(String title) {
@@ -821,6 +887,7 @@ public class JEasyGraphics {
 
     /**
      * get main frame of the window
+     * 获取窗口的main frame对象
      * @return  the hmain frame object
      */
     public JFrame getMainScreen() {
@@ -829,7 +896,8 @@ public class JEasyGraphics {
 
     /**
      *  set the fill color
-     * @param fillColor
+     *  设置填充色
+     * @param fillColor the fill color
      */
     public void setFillColor(Color fillColor) {
         targetPage.setFillColor(fillColor);
@@ -837,7 +905,8 @@ public class JEasyGraphics {
 
     /**
      * set the foreground color
-     * @param color
+     * 设置前景色
+     * @param color the foreground color
      */
     public void setColor(Color color) {
         targetPage.setColor(color);
@@ -845,7 +914,8 @@ public class JEasyGraphics {
 
     /**
      * get the foreground color
-     * @return
+     * 获取前景色
+     * @return the foreground color
      */
     public Color getColor() {
         return targetPage.getColor();
@@ -853,7 +923,8 @@ public class JEasyGraphics {
 
     /**
      * get fill color
-     * @return
+     * 获取填充色
+     * @return the fill color
      */
     public Color getFillColor() {
         return targetPage.getColor();
@@ -861,7 +932,8 @@ public class JEasyGraphics {
 
     /**
      * get background color
-     * @return
+     * 获取背景色
+     * @return background color
      */
     public Color getBackgroundColor() {
         return targetPage.getColor();
@@ -869,7 +941,8 @@ public class JEasyGraphics {
 
     /**
      * set background color
-     * @param backgroundColor
+     * 设置背景色
+     * @param backgroundColor background color
      */
     public void setBackgroundColor(Color backgroundColor) {
         targetPage.setBackgroundColor(backgroundColor);
@@ -877,6 +950,7 @@ public class JEasyGraphics {
 
     /**
      * set the view port
+     * 设置视口
      * @param left left of the view
      * @param top  top of the view                                  v
      * @param right right of the view
@@ -890,6 +964,7 @@ public class JEasyGraphics {
 
     /**
      * get view port info
+     * 获取视口信息
      * @return
      */
     public ViewPortInfo getViewPort() {
@@ -898,6 +973,7 @@ public class JEasyGraphics {
 
     /**
      * clear view port setting
+     * 清除视口设置
      */
     public void clearViewPort() {
         targetPage.clearViewPort();
@@ -905,7 +981,8 @@ public class JEasyGraphics {
 
     /**
      * set line width
-     * @param width
+     * 设置线宽
+     * @param width width of the drawed line
      */
     public void setLineWidth(float width) {
         targetPage.setLineWidth(width);
@@ -913,7 +990,8 @@ public class JEasyGraphics {
 
     /**
      * get line width
-     * @return
+     * 获取线宽
+     * @return line width
      */
     public float getLineWidth() {
         return targetPage.getLineWidth();
@@ -921,7 +999,9 @@ public class JEasyGraphics {
 
     /**
      * set line style
-     * @param lineStyle
+     * 设置线条样式
+     * @see LineStyle
+     * @param lineStyle line style
      */
     public void setLineStyle(LineStyle lineStyle) {
         targetPage.setLineStyle(lineStyle);
@@ -929,7 +1009,9 @@ public class JEasyGraphics {
 
     /**
      * get line style
-     * @return
+     * 获取线条样式
+     * @see LineStyle
+     * @return line style
      */
     public LineStyle getLineStyle() {
         return targetPage.getLineStyle();
@@ -944,7 +1026,7 @@ public class JEasyGraphics {
      * check if key have been pressed
      * 这个函数用于检测当前是否有键盘消息
      *
-     * @return
+     * @return true if key pressed, false if not
      */
     public boolean kbMsg() {
         checkKeyEventTime();
@@ -954,8 +1036,9 @@ public class JEasyGraphics {
     /**
      * get and wait for key press message
      * 这个函数用于获取键盘消息，如果当前没有消息，则等待。
+     * @see java.awt.event.KeyEvent
      *
-     * @return
+     * @return keyevent
      */
     public KeyEvent getKey() {
         synchronized (this) {
@@ -976,6 +1059,7 @@ public class JEasyGraphics {
 
     /**
      * show an input dialog
+     * 显示一个对话框获取输入
      * @param notice the notice message
      * @return the text user inputted
      */
@@ -985,6 +1069,7 @@ public class JEasyGraphics {
 
     /**
      * show a confirm dialog
+     * 显示一个确认对话框
      * @param notice the notice message
      * @return the user's choise
      */
@@ -1003,7 +1088,7 @@ public class JEasyGraphics {
      * get and wait for a char inputted from keyboard
      * 这个函数用于获取键盘字符输入，如果当前没有输入，则等待。
      *
-     * @return
+     * @return code of the input char  {@link java.awt.event.KeyEvent}
      */
     public int getCh() {
         synchronized (this) {
@@ -1044,7 +1129,7 @@ public class JEasyGraphics {
      * pause for 1000/fps milliseconds
      * 延迟1000/fps毫秒时间
      *
-     * @param fps
+     * @param fps fps
      */
     public void delayFps(long fps) {
         double delay_time = 1000.0 / fps;
@@ -1073,7 +1158,7 @@ public class JEasyGraphics {
      * test if some key pressed
      * 这个函数用于检测当前是否有键盘字符输入
      *
-     * @return
+     * @return true if key pressed, false if not
      */
     public boolean kbHit() {
         checkKeyEventTime();
@@ -1111,7 +1196,7 @@ public class JEasyGraphics {
      * get current mouse position
      * 获取当前鼠标坐标
      *
-     * @return
+     * @return mouse position
      */
     public Point mousePos() {
         Point p = mainScreen.getContentPane().getMousePosition();
@@ -1125,8 +1210,8 @@ public class JEasyGraphics {
     /**
      * wait and get a mouse message
      * 这个函数用于获取一个鼠标消息。如果当前鼠标消息队列中没有，就一直等待。
-     *
-     * @return
+     * @see MouseMsg
+     * @return mouse mouse
      */
     public MouseMsg getMouse() {
         synchronized (this) {
@@ -1150,7 +1235,7 @@ public class JEasyGraphics {
      * test if there are mouse events
      * 这个函数用于检测当前是否有鼠标消息
      *
-     * @return
+     * @return true if have mouse events, false if not
      */
     public boolean mouseMsg() {
         checkMouseEventTime();
@@ -1159,8 +1244,9 @@ public class JEasyGraphics {
 
     /**
      * convert view cordinate to window cordinate
-     * @param p
-     * @return
+     * 将视口坐标转换为屏幕坐标
+     * @param p 视口坐标点
+     * @return 屏幕坐标点
      */
     public Point convertCordinate(Point p) {
         return new Point(p.x + targetPage.getViewPort().left,
@@ -1177,7 +1263,8 @@ public class JEasyGraphics {
 
     /**
      * get height of the window
-     * @return
+     * 获取屏幕高度
+     * @return height of the window
      */
     public int getHeight() {
         return targetPage.getHeight();
@@ -1185,8 +1272,10 @@ public class JEasyGraphics {
 
     /**
      * set fill pattern
+     * 设置填充样式
+     *
      * @see FillPattern
-     * @param fillPattern
+     * @param fillPattern fill pattern
      */
     public void setFillPattern(FillPattern fillPattern) {
         targetPage.setFillPattern(fillPattern);
@@ -1195,7 +1284,7 @@ public class JEasyGraphics {
     /**
      * set alpha composite
      * @see java.awt.AlphaComposite
-     * @param composite
+     * @param composite alphaComposite
      */
     public void setComposite(AlphaComposite composite) {
         targetPage.setComposite(composite);
@@ -1211,7 +1300,7 @@ public class JEasyGraphics {
     /**
      * set alpha composite
      * @see java.awt.AlphaComposite
-     * @param composite
+     * @param composite  alphaComposite
      */
     public void setWriteMode(AlphaComposite composite) {
         targetPage.setWriteMode(composite);

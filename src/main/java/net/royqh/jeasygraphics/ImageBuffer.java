@@ -91,10 +91,20 @@ public class ImageBuffer {
         return height;
     }
 
+    /**
+     * get the foreground color
+     * 获取前景色
+     * @return the foreground color
+     */
     public Color getColor() {
         return color;
     }
 
+    /**
+     * set the foreground color
+     * 设置前景色
+     * @param color the foreground color
+     */
     public void setColor(Color color) {
         this.color = color;
         updatePaint();
@@ -121,10 +131,20 @@ public class ImageBuffer {
         updatePaint();
     }
 
+    /**
+     * get background color
+     * 获取背景色
+     * @return background color
+     */
     public Color getBackgroundColor() {
         return backgroundColor;
     }
 
+    /**
+     * set background color
+     * 设置背景色
+     * @param backgroundColor background color
+     */
     public void setBackgroundColor(Color backgroundColor) {
         this.backgroundColor = backgroundColor;
         Map<TextAttribute,Object> attrs=new HashMap<>();
@@ -156,6 +176,10 @@ public class ImageBuffer {
         this.stroke=lineStyle.createStroke(lineWidth);
     }
 
+    /**
+     * clear the window(screen)
+     * 清除当前屏幕
+     */
     public void clear(){
         Graphics2D g=(Graphics2D)image.getGraphics();
         g.setColor(backgroundColor);
@@ -167,6 +191,10 @@ public class ImageBuffer {
         return viewPortInfo;
     }
 
+    /**
+     * clear view port setting
+     * 清除视口设置
+     */
     public void clearViewPort() {
         viewPortInfo.left=0;
         viewPortInfo.top=0;
@@ -214,6 +242,11 @@ public class ImageBuffer {
         }
     }
 
+    /**
+     * make all point with the specified color the transparent
+     * 将指定颜色的所有点变为透明
+     * @param color color to change
+     */
     public void makeTransparent(Color color) {
         for (int i=0;i<getWidth();i++) {
             for (int j=0;j<getHeight();j++) {
@@ -256,12 +289,29 @@ public class ImageBuffer {
         return g.getFontMetrics().getStringBounds(text,g);
     }
 
+    /**
+     * print a text on the specified window position
+     * 在屏幕指定位置显示文字
+     *
+     * @param x the x cordinate of the left-top corner of the bound rectangle of the outputted text
+     * @param y the y cordinate of the left-top corner of the bound rectangle of the outputted text
+     * @param text the text to be outputted
+     */
     public void outTextXY(int x,int y,String text) {
         Graphics2D g=getGraphics2D();
         g.drawString(text, x, y+g.getFont().getSize());
         g.dispose();
     }
 
+    /**
+     * print a text like the printf function of The C Language on the specified window position
+     * 在屏幕指定文字显示格式化后的文字
+     * @see String#format
+     * @param x the x cordinate of the left-top corner of the bound rectangle of the outputted text
+     * @param y the y cordinate of the left-top corner of the bound rectangle of the outputted text
+     * @param fmt the format string
+     * @param args the objects to be outputted
+     */
     public void xyPrintf(int x,int y,String fmt , Object... args) {
         outTextXY(x,y,String.format(fmt,args));
     }
@@ -305,10 +355,12 @@ public class ImageBuffer {
         setFont(new Font(attributes));
     }
 
-    
+
 
     /**
-     *  在指定图像页上画一条从(x1,y1)到(x2,y2)的线
+     * draw a straight line from point(x1,y1) to (x2,y2)
+     * 在屏幕上画一条从(x1,y1)到(x2,y2)的线
+     *
      * @param x1
      * @param y1
      * @param x2
@@ -321,9 +373,10 @@ public class ImageBuffer {
     }
 
     /**
+     * move current point to (x,y)
      * 移动当前点坐标到 (x,y)
-     * @param x
-     * @param y
+     * @param x x cordinate of current point
+     * @param y y cordinate of current point
      */
     public void moveTo(int x,int y) {
         lastLineX=x;
@@ -331,9 +384,10 @@ public class ImageBuffer {
     }
 
     /**
+     * draw a line from current point to (x,y), then current point move to (x,y)
      * 从当前点画线到(x,y)。画线后当前点坐标变为（x,y）
-     * @param x
-     * @param y
+     * @param x x cordinate of new current point
+     * @param y y cordinate of new current point
      */
     public void lineTo(int x,int y) {
         line(lastLineX,lastLineY,x,y);
@@ -342,34 +396,39 @@ public class ImageBuffer {
     }
 
     /**
+     * draw from current point(x,y) to (x+dx,y+dy)
      *  从当前点(x,y)画线到(x+dx,y+dy). 画线后当前点坐标变为（x+dx,y+dy）
-     * @param dx
-     * @param dy
+     * @param dx delta x
+     * @param dy delta y
      */
     public void lineRel(int dx,int dy){
         lineTo(lastLineX+dx,lastLineY+dy);
     }
 
     /**
+     * draw an arc
      * 绘制圆弧
-     * @param x
-     * @param y
-     * @param startAngle
-     * @param endAngle
-     * @param radius
+     *
+     * @param x  the x cordinate of the arc's center 圆弧圆心x坐标
+     * @param y  the y cordinate of the arc's center 圆弧圆心y坐标
+     * @param startAngle start angle of the arc
+     * @param endAngle  end angle of the arc
+     * @param radius  radius of the arc
      */
     public void arc(int x,int y,int startAngle, int endAngle, int radius){
         arc(x,y,startAngle,endAngle,radius,radius);
     }
 
     /**
+     * draw an eclipse arc
      * 画椭圆弧
-     * @param x
-     * @param y
-     * @param startAngle
-     * @param endAngle
-     * @param xRadius
-     * @param yRadius
+     *
+     * @param x the x cordinate of the arc's center
+     * @param y the y cordinate of the arc's center
+     * @param startAngle start angle of the arc
+     * @param endAngle  end angle of the arc
+     * @param xRadius radius of the arc on the x-axis
+     * @param yRadius radius of the arc on the y-axis
      */
     public void arc(int x,int y,int startAngle, int endAngle, int xRadius,int yRadius){
         Graphics2D g=getGraphics2D();
@@ -378,21 +437,25 @@ public class ImageBuffer {
     }
 
     /**
+     * draw a circle
      * 绘制圆形
-     * @param x
-     * @param y
-     * @param radius
+     *
+     * @param x the x cordinate of the circle's center
+     * @param y the y cordinate of the circle's center
+     * @param radius  radius of the circle
      */
     public void circle(int x,int y,int radius) {
         ellipse(x,y,radius,radius);
     }
 
     /**
+     * draw a rectangle
      * 绘制矩形
-     * @param left
-     * @param top
-     * @param right
-     * @param bottom
+     *
+     * @param left left of the rectangle
+     * @param top  top of the rectangle
+     * @param right right of the rectangle
+     * @param bottom  bottom of the rectangle
      */
     public void rectangle(int left, int top, int right, int bottom) {
         Graphics2D g=getGraphics2D();
@@ -401,25 +464,29 @@ public class ImageBuffer {
     }
 
     /**
+     * draw a rectangle with rounded corner
      * 绘制圆角矩形
-     * @param left
-     * @param top
-     * @param right
-     * @param bottom
-     * @param radius
+     *
+     * @param left left of the rectangle
+     * @param top  top of the rectangle
+     * @param right right of the rectangle
+     * @param bottom  bottom of the rectangle
+     * @param radius  radius of the round corner circle
      */
     public void roundRect(int left, int top, int right, int bottom, int radius){
         roundRect(left,top,right,bottom,radius,radius);
     }
 
     /**
+     * draw a rectangle with rounded corner
      * 绘制圆角矩形
-     * @param left
-     * @param top
-     * @param right
-     * @param bottom
-     * @param xRadius
-     * @param yRadius
+     *
+     * @param left left of the rectangle
+     * @param top  top of the rectangle
+     * @param right right of the rectangle
+     * @param bottom  bottom of the rectangle
+     * @param xRadius radius on the x-axis of the round corner circle
+     * @param yRadius radius on the y-axis of the round corner circle
      */
     public void roundRect(int left, int top, int right, int bottom, int xRadius,int yRadius){
         Graphics2D g=getGraphics2D();
@@ -428,11 +495,13 @@ public class ImageBuffer {
     }
 
     /**
+     * draw an ellipse
      * 画椭圆
-     * @param x
-     * @param y
-     * @param xRadius
-     * @param yRadius
+     *
+     * @param x x cordinate of ellipse's center
+     * @param y y cordinate of ellipse's center
+     * @param xRadius radius on x-axis
+     * @param yRadius radius on y-axis
      */
     public void ellipse(int x,int y, int xRadius,int yRadius){
         Graphics2D g=getGraphics2D();
@@ -441,10 +510,12 @@ public class ImageBuffer {
     }
 
     /**
+     * floodfill start from point(x,y)
+     * the area to be fill must be enclosed by the borderColor, or whole window will be filled!
      * 从点(x,y)开始进行flood填充(使用fillColor),直到遇到borderColor为止
-     * @param x
-     * @param y
-     * @param borderColor
+     * @param x x cordinate of the start point
+     * @param y y cordinate of the start point
+     * @param borderColor border color of the fill area
      */
     public void floodFill(int x, int y, Color borderColor){
         x+=viewPortInfo.left;
@@ -497,11 +568,13 @@ public class ImageBuffer {
     }
 
     /**
+     * draw a filled rectangle without border
      * 绘制无边框填充矩形
-     * @param left
-     * @param top
-     * @param right
-     * @param bottom
+     *
+     * @param left left of the rectangle
+     * @param top top of the rectangle
+     * @param right  right of the rectangle
+     * @param bottom  bottom of the rectangle
      */
     public void bar(int left, int top, int right, int bottom ) {
         Graphics2D g=getGraphics2D();
@@ -511,11 +584,13 @@ public class ImageBuffer {
     }
 
     /**
+     * draw a filled rectangle with border
      * 绘制带边框填充矩形
-     * @param left
-     * @param top
-     * @param right
-     * @param bottom
+     *
+     * @param left left of the rectangle
+     * @param top top of the rectangle
+     * @param right  right of the rectangle
+     * @param bottom  bottom of the rectangle
      */
     public void fillRectangle(int left, int top, int right, int bottom )  {
         Graphics2D g=getGraphics2D();
@@ -527,26 +602,29 @@ public class ImageBuffer {
     }
 
     /**
-     *  绘制带边框填充圆角矩形
+     * draw a filled rectangle with rounded corner
+     * 绘制带边框填充圆角矩形
      *
-     * @param left
-     * @param top
-     * @param right
-     * @param bottom
-     * @param radius
+     * @param left left of the rectangle
+     * @param top  top of the rectangle
+     * @param right right of the rectangle
+     * @param bottom  bottom of the rectangle
+     * @param radius radius of the round corner circle
      */
     public void fillRoundRect(int left, int top, int right, int bottom, int radius){
         fillRoundRect(left,top,right,bottom,radius,radius);
     }
 
     /**
-     * 绘制带边框填充椭圆角矩形
-     * @param left
-     * @param top
-     * @param right
-     * @param bottom
-     * @param xRadius
-     * @param yRadius
+     * draw a filled rectangle with rounded corner
+     * 绘制带边框填充圆角矩形
+     *
+     * @param left left of the rectangle
+     * @param top  top of the rectangle
+     * @param right right of the rectangle
+     * @param bottom  bottom of the rectangle
+     * @param xRadius radius on the x-axis of the round corner circle
+     * @param yRadius radius on the y-axis of the round corner circle
      */
     public void fillRoundRect(int left, int top, int right, int bottom, int xRadius,int yRadius)  {
         Graphics2D g=getGraphics2D();
@@ -558,27 +636,29 @@ public class ImageBuffer {
     }
 
     /**
-     * 绘制边框填充扇形
+     * draw an filled sector with border
+     * 绘制带边框填充扇形
      *
-     * @param x
-     * @param y
-     * @param startAngle
-     * @param endAngle
-     * @param radius
+     * @param x  the x cordinate of the arc's center
+     * @param y  the y cordinate of the arc's center
+     * @param startAngle start angle of the arc
+     * @param endAngle  end angle of the arc
+     * @param radius  radius of the arc
      */
     public void fillArc(int x,int y,int startAngle, int endAngle, int radius){
         fillArc(x,y,startAngle,endAngle,radius,radius);
     }
 
     /**
+     * draw an filled ellipse sector with border
      * 绘制带边框填充扇形
-     * 
-     * @param x
-     * @param y
-     * @param startAngle
-     * @param endAngle
-     * @param xRadius
-     * @param yRadius
+     *
+     * @param x the x cordinate of the arc's center
+     * @param y the y cordinate of the arc's center
+     * @param startAngle start angle of the arc
+     * @param endAngle  end angle of the arc
+     * @param xRadius radius of the arc on the x-axis
+     * @param yRadius radius of the arc on the y-axis
      */
     public void fillArc(int x,int y,int startAngle, int endAngle, int xRadius,int yRadius){
         Graphics2D g=getGraphics2D();
@@ -595,40 +675,53 @@ public class ImageBuffer {
     }
 
     /**
+     * draw an filled ellipse sector with border
      * 绘制带边框填充扇形
      *
-     * @param x
-     * @param y
-     * @param startAngle
-     * @param endAngle
-     * @param xRadius
-     * @param yRadius
+     * @param x the x cordinate of the arc's center
+     * @param y the y cordinate of the arc's center
+     * @param startAngle start angle of the arc
+     * @param endAngle  end angle of the arc
+     * @param xRadius radius of the arc on the x-axis
+     * @param yRadius radius of the arc on the y-axis
      */
     public void sector(int x,int y,int startAngle, int endAngle, int xRadius,int yRadius){
         fillArc(x,y,startAngle,endAngle,xRadius,yRadius);
     }
-
+    /**
+     * draw an filled ellipse sector with border
+     * 绘制带边框填充扇形
+     * @param left left of the bounded rectangle of the ellipse
+     * @param top top of the bounded rectangle of the ellipse
+     * @param right right of the bounded rectangle of the ellipse
+     * @param bottom bottom of the bounded rectangle of the ellipse
+     * @param startAngle start angle of the arc
+     * @param endAngle  end angle of the arc
+     */
     public void pie( int left, int top,int right,int bottom, int startAngle,int endAngle) {
         sector((left+right)/2,(top+bottom)/2,startAngle,endAngle,(right-left)/2,(bottom-top)/2);
     }
-    
+
     /**
+     * draw a filled circle with bound
      * 绘制带边框填充圆形
      *
-     * @param x
-     * @param y
-     * @param radius
+     * @param x the x cordinate of the circle's center
+     * @param y the y cordinate of the circle's center
+     * @param radius  radius of the circle
      */
     public void fillCircle(int x,int y,int radius) {
         fillEllipse(x,y,radius,radius);
     }
 
     /**
+     * draw a filled ellipse
      * 绘制带边框填充椭圆
-     * @param x
-     * @param y
-     * @param xRadius
-     * @param yRadius
+     *
+     * @param x x cordinate of the ellipse's center
+     * @param y x cordinate of the elipse's center
+     * @param xRadius  radius on the x-axis of the elipse's center
+     * @param yRadius  radius on the y-axis of the elipse's center
      */
     public void fillEllipse(int x, int y, int xRadius, int yRadius) {
         Graphics2D g=getGraphics2D();
@@ -640,10 +733,12 @@ public class ImageBuffer {
     }
 
     /**
+     * draw a filled polygon
      * 画带边框填充多边形
-     * @param xPoints  每个点的X坐标
-     * @param yPoints  每个点的Y坐标
-     * @param numPoints 多边形点的个数
+     *
+     * @param xPoints   x cordinates of each vertex 每个顶点的X坐标
+     * @param yPoints   x cordinates of each vertex 每个顶点的Y坐标
+     * @param numPoints num of vertexes 多边形点的个数
      */
     public void fillPoly(int[] xPoints, int[] yPoints, int numPoints) {
         Graphics2D g=getGraphics2D();
@@ -655,45 +750,51 @@ public class ImageBuffer {
     }
 
     /**
+     * draw a filled polygon
      * 画带边框填充多边形
-     * @param numPoints 多边形点的个数
-     * @param polyPoints 每个点的坐标（依次两个分别为x,y），数组元素个数为 numPoints * 2。
+     *
+     * @param numPoints  num of vertexes 多边形点的个数
+     * @param vertexes cordinates of each vertexes 每个点的坐标（依次两个分别为x,y），数组元素个数为 numPoints * 2。
      */
-    public void fillPoly(int numPoints, int[] polyPoints) {
+    public void fillPoly(int numPoints, int[] vertexes) {
         int[] xPoints=new int[numPoints];
         int[] yPoints=new int[numPoints];
         for (int i=0;i<numPoints;i++) {
-            xPoints[i]=polyPoints[i*2];
-            yPoints[i]=polyPoints[i*2+1];
+            xPoints[i]=vertexes[i*2];
+            yPoints[i]=vertexes[i*2+1];
         }
         fillPoly(xPoints,yPoints,numPoints);
     }
 
     /**
-     * 绘制点(x,y)
-     * @param x
-     * @param y
-     * @param color
+     * set color of the specified point
+     * 设置指定点的颜色
+     * @param x x cordinate of the point
+     * @param y y cordinate of the point
+     * @param color color to be set
      */
     public void putPixel(int x,int y,Color color) {
         image.setRGB(x+viewPortInfo.left,y+viewPortInfo.top,color.getRGB());
     }
 
     /**
-     * 获取点(x,y)处的颜色
-     * @param x
-     * @param y
-     * @return
+     * get color of the specified point
+     * 获取指定点的颜色
+     * @param x x cordinate of the point
+     * @param y y cordinate of the point
+     * @return the point's color
      */
     public Color getPixel(int x,int y) {
         return new Color(image.getRGB(x+viewPortInfo.left,y+viewPortInfo.top));
     }
 
     /**
+     * draw a polygon
      * 画多边形
-     * @param xPoints  每个点的X坐标
-     * @param yPoints  每个点的Y坐标
-     * @param numPoints 多边形点的个数
+     *
+     * @param xPoints   x cordinates of each vertex 每个顶点的X坐标
+     * @param yPoints   x cordinates of each vertex 每个顶点的Y坐标
+     * @param numPoints num of vertexes 多边形点的个数
      */
     public void drawPoly(int[] xPoints, int[] yPoints, int numPoints) {
         Graphics2D g=getGraphics2D();
@@ -702,16 +803,18 @@ public class ImageBuffer {
     }
 
     /**
+     * draw a polygon
      * 画多边形
-     * @param numPoints 多边形点的个数
-     * @param polyPoints 每个点的坐标（依次两个分别为x,y），数组元素个数为 numPoints * 2。
+     *
+     * @param numPoints  num of vertexes 多边形点的个数
+     * @param vertexes cordinates of each vertexes 每个点的坐标（依次两个分别为x,y），数组元素个数为 numPoints * 2。
      */
-    public void drawPoly(int numPoints, int[] polyPoints) {
+    public void drawPoly(int numPoints, int[] vertexes) {
         int[] xPoints=new int[numPoints];
         int[] yPoints=new int[numPoints];
         for (int i=0;i<numPoints;i++) {
-            xPoints[i]=polyPoints[i*2];
-            yPoints[i]=polyPoints[i*2+1];
+            xPoints[i]=vertexes[i*2];
+            yPoints[i]=vertexes[i*2+1];
         }
         drawPoly(xPoints,yPoints,numPoints);
     }
