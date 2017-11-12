@@ -6,6 +6,7 @@ It's good for introduction classes on Java or Computer Graphics.
 ##Examples
 
 ###Basic Drawing
+<pre>
 <code>
 public static void main(String[] args){
     JEasyGraphics eg=JEasyGraphics.init(800,600);
@@ -15,9 +16,11 @@ public static void main(String[] args){
     eg.close();
 }
 </code>
+</pre>
 
 ###Turtle Graphics
 
+<pre>
 <code>
     public static void main(String[] args){
         Turtle t=Turtle.createWorld(800,600);
@@ -35,4 +38,5 @@ public static void main(String[] args){
         t.close();
     }
 </code>
+</pre>
 
