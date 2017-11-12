@@ -108,6 +108,8 @@ public class Turtle {
                     iconWidth,iconHeight,
                     iconWidth/2,iconHeight/2,
                     myTurtle.orient/180*Math.PI);
+
+            System.out.println("("+myTurtle.x+","+myTurtle.y+")");
         }
         eg.putImage(screenBufferPage,0,0,eg.getWidth(),eg.getHeight(),0,0,width,height);
     }
