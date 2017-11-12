@@ -80,16 +80,32 @@ public class Turtle {
         refreshWorld();
     }
 
+    /**
+     * init the turtle graphics
+     * 初始化海龟世界
+     * @param width width of the window 窗口宽度
+     * @param height height of the window 窗口高度
+     * @param scale zoom factor 缩放比例
+     * @return the turtle instance
+     */
     public static Turtle createWorld(int width, int height, double scale){
         JEasyGraphics eg=JEasyGraphics.init((int)(width*scale)+1,(int)(height*scale)+1);
         return new Turtle(eg,width,height,scale);
     }
 
+    /**
+     * init the turtle graphics
+     * 初始化海龟世界
+     * @param width width of the window 窗口宽度
+     * @param height height of the window 窗口高度
+     * @return
+     */
     public static Turtle createWorld(int width,int height) {
         return createWorld(width,height,1);
     }
 
     /**
+     * convert degree to radian
      * 将角度转换为弧度
      * @param degree
      * @return
@@ -98,6 +114,9 @@ public class Turtle {
         return degree*Math.PI/180.0;
     }
 
+    /**
+     *  really draw the world
+     */
     private void displayWorld(){
         screenBufferPage.putImage(worldPage,0,0);
         if (myTurtle.showTurtle) {
@@ -109,11 +128,14 @@ public class Turtle {
                     iconWidth/2,iconHeight/2,
                     myTurtle.orient/180*Math.PI);
 
-            System.out.println("("+myTurtle.x+","+myTurtle.y+")");
+            //System.out.println("("+myTurtle.x+","+myTurtle.y+")");
         }
         eg.putImage(screenBufferPage,0,0,eg.getWidth(),eg.getHeight(),0,0,width,height);
     }
 
+    /**
+     * refresh world
+     */
     private void refreshWorld()
     {
         frameCount++;
@@ -141,11 +163,22 @@ public class Turtle {
         iconHeight=iconPage.getHeight();
     }
 
+    /**
+     * go forward
+     * 海龟前进
+     * @param step
+     */
     public void fd(double step)
     {
         forward(step);
     }
 
+    /**
+     * go forward
+     * 海龟前进
+     *
+     * @param step
+     */
     public void forward(double step)
     {
         double deltaX,deltaY;
@@ -210,18 +243,50 @@ public class Turtle {
         }
 
     }
+
+    /**
+     * go backward
+     * 海龟后退
+     * @param step
+     */
     public void bk(double step)
     {
         backward(step);
     }
+
+    /**
+     * go backward
+     * 海龟后退
+     * @param step
+     */
     public void backward(double step)
     {
         forward(-step);
     }
+
+    /**
+     * turn left
+     * 海龟左转
+     * @param degree
+     */
     public void lt(double degree)
     {
         leftTurn(degree);
     }
+    /**
+     * turn left
+     * 海龟左转
+     * @param degree
+     */
+    public void turnLeft(double degree) {
+        leftTurn(degree);
+    }
+
+    /**
+     * turn left
+     * 海龟左转
+     * @param degree
+     */
     public void leftTurn(double degree)
     {
         double originAngle=myTurtle.orient;
@@ -259,30 +324,77 @@ public class Turtle {
         //prepareTurtleIcon();
         refreshWorld();
     }
+
+    /**
+     * turn right
+     * 海龟右转
+     * @param degree
+     */
     public void rt(double degree)
     {
         rightTurn(degree);
     }
+    /**
+     * turn right
+     * 海龟右转
+     * @param degree
+     */
+    public void turnRight(double degree)
+    {
+        rightTurn(degree);
+    }
+    /**
+     * turn right
+     * 海龟右转
+     * @param degree
+     */
     public void rightTurn(double degree)
     {
         lt(-degree);
     }
+
+    /**
+     * pen down
+     * 落笔
+     */
     public void pd()
     {
         penDown();
     }
+
+    /**
+     * pen down
+     * 落笔
+     */
     public void penDown()
     {
         myTurtle.penDown=true;
     }
+
+    /**
+     * pen up
+     * 抬笔
+     * 
+     */
     public void penUp()
     {
         myTurtle.penDown=false;
     }
+    /**
+     * pen up
+     * 抬笔
+     *
+     */
     public void pu()
     {
         penUp();
     }
+
+    /**
+     * clear screen
+     * 清屏
+     *
+     */
     public void clearScreen()
     {
         worldPage.clear();
@@ -293,16 +405,29 @@ public class Turtle {
         //prepareTurtleIcon();
         refreshWorld();
     }
-
+    /**
+     * clear screen
+     * 清屏
+     *
+     */
     public void cs()
     {
         clearScreen();
     }
+    /**
+     * clear screen
+     * 清屏
+     *
+     */
     public void clear()
     {
         clearScreen();
     }
 
+    /**
+     * go home (return to (0,0))
+     * 海龟回到原点(0,0)
+     */
     public void home()
     {
         int toX,toY;
@@ -319,16 +444,37 @@ public class Turtle {
         //prepareTurtleIcon();
         refreshWorld();
     }
+
+    /**
+     * set pen size
+     * 设置画笔宽度
+     *
+     * @param size
+     */
     public void setPenSize(int size)
     {
         myTurtle.penSize=size;
         worldPage.setLineWidth(size);
     };
+
+    /**
+     * set pen color
+     * 设置画笔颜色
+     *
+     * @param color
+     */
     public void setPenColor(Color color)
     {
         myTurtle.penColor=color;
         worldPage.setColor(color);
     }
+
+    /**
+     * set turtle speed
+     * 设置海龟移动速度
+     *
+     * @param speed
+     */
     public void setSpeed(int speed)
     {
         if (speed>=1)
@@ -340,14 +486,31 @@ public class Turtle {
             myTurtle.penSpeed=1;
         }
     }
+
+    /**
+     * set if turtle will rewind if out of screen
+     * 设置当海龟移动到屏幕外时,是否自动回绕到屏幕另一侧
+     * @param isRewind
+     */
     public void setRewind(boolean isRewind)
     {
         rewind=isRewind;
     }
+
+    /**
+     * set if turtle move immediatelly (no animation)
+     * 设置海龟是否瞬移(取消动画)
+     * @param isImmediate
+     */
     public void setImmediate(boolean isImmediate)
     {
         immediate=isImmediate;
     }
+
+    /**
+     * pause the program
+     * 暂停程序
+     */
     public void pause()
     {
         frameCount=0;
@@ -355,17 +518,34 @@ public class Turtle {
         displayWorld();
         eg.pause();
     }
+
+    /**
+     * show the turtle
+     * 显示海龟
+     */
     public void show()
     {
         myTurtle.showTurtle=true;
         refreshWorld();
     }
+
+    /**
+     * hide the turtle
+     * 隐藏海龟
+     */
     public void hide()
     {
         myTurtle.showTurtle=false;
         refreshWorld();
     }
 
+    /**
+     * put turtle to point(x,y)
+     * 将海龟放到点(x,y)
+     *
+     * @param x
+     * @param y
+     */
     public void setXY(double x, double y)
     {
         myTurtle.x=originX+x;
@@ -373,34 +553,70 @@ public class Turtle {
         refreshWorld();
     }
 
+    /**
+     * get x position of turtle
+     * 获取海龟x坐标
+     * @return
+     */
     public double getX()
     {
         int cent_x;
         cent_x=round(width/2);
         return myTurtle.x-cent_x;
     }
+
+    /**
+     * get y position of turtle
+     * 获取海龟y坐标
+     * @return
+     */
     public double getY()
     {
         int cent_y;
         cent_y=round(height/2);
         return cent_y-myTurtle.y;
     }
+
+    /**
+     * set orientation of the turtle
+     * 设置海龟朝向
+     * @param angle
+     */
     public void setAngle(double angle)
     {
         myTurtle.orient=-angle;
         //prepareTurtleIcon();
         refreshWorld();
     }
+
+    /**
+     * get the orientation of the turtle
+     * 获取海龟朝向
+     * 
+     * @return
+     */
     public double getAngle()
     {
         return -myTurtle.orient;
     }
 
+    /**
+     * get status info of the turtle                                          h
+     * 获取海龟当前状态(位置和朝向)
+     * @see TurtleInfo
+     * @return
+     */
     public TurtleInfo getState()
     {
         return new TurtleInfo(getX(),getY(),getAngle());
     }
 
+    /**
+     * set status of the turtle
+     * 设置海龟当前状态
+     *
+     * @param state
+     */
     public void setState(TurtleInfo state)
     {
         boolean pd=myTurtle.penDown;
@@ -410,6 +626,12 @@ public class Turtle {
         myTurtle.penDown=pd;
     }
 
+    /**
+     * let turtle face to point(x,y)
+     * 让海龟朝向点(x,y)
+     * @param x
+     * @param y
+     */
     public void faceXY(double x,double y)
     {
         x=originX+x;
@@ -420,6 +642,11 @@ public class Turtle {
         turnTo(angle);
     }
 
+    /**
+     * change turtle's orientation
+     * 设置海龟的朝向
+     * @param angle
+     */
     public void turnTo(double angle)
     {
         double turnAngle;
@@ -435,6 +662,12 @@ public class Turtle {
         rt(turnAngle);
     }
 
+    /**
+     * move turtle to point(x,y)
+     * 让海龟移动到点(x,y)
+     * @param x
+     * @param y
+     */
     public void gotoXY(double x, double y)
     {
         faceXY(x,y);
@@ -451,7 +684,13 @@ public class Turtle {
         refreshWorld();
     }
 
-
+    /**
+     * set origin to point(x,y)
+     * 将视图原点设置到点(x,y)
+     *
+     * @param x
+     * @param y
+     */
     public void setOrigin(int x, int y)
     {
         originX=originX+x;
@@ -460,39 +699,88 @@ public class Turtle {
         clearScreen();
     }
 
-
+    /**
+     * close the window
+     * 关闭窗口
+     * 
+     */
     public void close() {
         eg.close();
     }
 
+    /**
+     * get the underlying easyGraphics
+     * @return
+     */
     public JEasyGraphics getEasyGraphics() {
         return eg;
     }
 
+    /**
+     * get the zoom scale
+     * 获取缩放比例
+     *
+     * @return
+     */
     public double getScale() {
         return scale;
     }
 
+    /**
+     * get width of the window
+     * 获取视窗宽度
+     *
+     * @return
+     */
     public int getWidth() {
         return width;
     }
 
+    /**
+     * get height of the window
+     * 获取视窗高度
+     *
+     * @return
+     */
     public int getHeight() {
         return height;
     }
 
+    /**
+     * get the background image(drawing image)
+     * 获取背景图像
+     *
+     * @return
+     */
     public ImageBuffer getWorldPage() {
         return worldPage;
     }
 
+    /**
+     * get the turtle icon image
+     * 获取海龟图标
+     *
+     * @return
+     */
     public ImageBuffer getIconPage() {
         return iconPage;
     }
 
+    /**
+     * get if the turtle will rewind when out of screen
+     * 获取海龟是否回绕
+     *
+     * @return
+     */
     public boolean isRewind() {
         return rewind;
     }
 
+    /**
+     * get if the turtle will act immediatelly (no animation)
+     * 获取海龟是否瞬移(无动画)
+     * @return
+     */
     public boolean isImmediate() {
         return immediate;
     }

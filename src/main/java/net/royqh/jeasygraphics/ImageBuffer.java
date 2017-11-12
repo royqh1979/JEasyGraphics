@@ -118,6 +118,7 @@ public class ImageBuffer {
 
     public void setFillColor(Color fillColor) {
         this.fillColor = fillColor;
+        updatePaint();
     }
 
     public Color getBackgroundColor() {
@@ -584,7 +585,12 @@ public class ImageBuffer {
         g.setPaint(paint);
         g.fillArc(x,y,xRadius,yRadius,startAngle,endAngle-startAngle);
         g.setColor(color);
-        //Todo;
+        g.drawArc(x-xRadius,y-yRadius,xRadius*2,yRadius*2,startAngle,endAngle-startAngle);
+        System.out.println(endAngle);
+        System.out.println(x+","+y+","+(int)(x+xRadius*Math.cos(startAngle*Math.PI/180))+","+(int)(y+yRadius*Math.sin(startAngle*Math.PI/180)));
+        System.out.println(x+","+y+","+(int)(x+xRadius*Math.cos(endAngle*Math.PI/180))+","+(int)(y+yRadius*Math.sin(endAngle*Math.PI/180)));
+        g.drawLine(x,y,(int)(x+xRadius*Math.cos(startAngle*Math.PI/180)),(int)(y-yRadius*Math.sin(startAngle*Math.PI/180)));
+        g.drawLine(x,y,(int)(x+xRadius*Math.cos(endAngle*Math.PI/180)),(int)(y-yRadius*Math.sin(endAngle*Math.PI/180)));
         g.dispose();
     }
 
@@ -602,8 +608,8 @@ public class ImageBuffer {
         fillArc(x,y,startAngle,endAngle,xRadius,yRadius);
     }
 
-    public void pie( int left, int top,int right,int bottom, int stangle,int endangle) {
-        sector((left+right)/2,(top+bottom)/2,stangle,endangle,(right-left)/2,(bottom-top)/2);
+    public void pie( int left, int top,int right,int bottom, int startAngle,int endAngle) {
+        sector((left+right)/2,(top+bottom)/2,startAngle,endAngle,(right-left)/2,(bottom-top)/2);
     }
     
     /**

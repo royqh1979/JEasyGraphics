@@ -4,7 +4,14 @@ import net.royqh.jeasygraphics.stroke.*;
 
 import java.awt.*;
 
+/**
+ * line styles
+ * 线形
+ */
 public enum LineStyle {
+    /**
+     * solid line
+     */
     SOLID_LINE{
         @Override
         public Stroke createStroke(float width) {
