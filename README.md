@@ -3,9 +3,9 @@ An easy-to-use Java graphics library whose api is like Borland Turbo C++ Graphic
 
 It's good for introduction classes on Java or Computer Graphics.
 
-##Examples
+## Examples
 
-###Basic Drawing
+### Basic Drawing
 <pre>
 <code>
 public static void main(String[] args){
@@ -18,7 +18,7 @@ public static void main(String[] args){
 </code>
 </pre>
 
-###Turtle Graphics
+### Turtle Graphics
 
 <pre>
 <code>
