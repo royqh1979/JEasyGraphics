@@ -98,7 +98,7 @@ public class Turtle {
      * 初始化海龟世界
      * @param width width of the window 窗口宽度
      * @param height height of the window 窗口高度
-     * @return
+     * @return the turtle instance
      */
     public static Turtle createWorld(int width,int height) {
         return createWorld(width,height,1);
@@ -157,7 +157,7 @@ public class Turtle {
     }
 
     private void prepareTurtleOriginIcon() throws IOException {
-        iconPage=eg.createImage(this.getClass().getResource("/turtle.png").getFile());
+        iconPage=eg.createImage(this.getClass().getResourceAsStream("/turtle.png"));
         iconPage.makeTransparent(Color.WHITE);
         iconWidth=iconPage.getWidth();
         iconHeight=iconPage.getHeight();
@@ -166,7 +166,7 @@ public class Turtle {
     /**
      * go forward
      * 海龟前进
-     * @param step
+     * @param step forward step
      */
     public void fd(double step)
     {
@@ -177,7 +177,7 @@ public class Turtle {
      * go forward
      * 海龟前进
      *
-     * @param step
+     * @param step  forward step
      */
     public void forward(double step)
     {
@@ -247,7 +247,7 @@ public class Turtle {
     /**
      * go backward
      * 海龟后退
-     * @param step
+     * @param step backward step
      */
     public void bk(double step)
     {
@@ -257,7 +257,7 @@ public class Turtle {
     /**
      * go backward
      * 海龟后退
-     * @param step
+     * @param step  backward step
      */
     public void backward(double step)
     {
@@ -267,7 +267,7 @@ public class Turtle {
     /**
      * turn left
      * 海龟左转
-     * @param degree
+     * @param degree turnning degree
      */
     public void lt(double degree)
     {
@@ -276,7 +276,7 @@ public class Turtle {
     /**
      * turn left
      * 海龟左转
-     * @param degree
+     * @param degree  turnning degree
      */
     public void turnLeft(double degree) {
         leftTurn(degree);
@@ -285,7 +285,7 @@ public class Turtle {
     /**
      * turn left
      * 海龟左转
-     * @param degree
+     * @param degree   turnning degree
      */
     public void leftTurn(double degree)
     {
@@ -328,7 +328,7 @@ public class Turtle {
     /**
      * turn right
      * 海龟右转
-     * @param degree
+     * @param degree  turnning degree
      */
     public void rt(double degree)
     {
@@ -337,7 +337,7 @@ public class Turtle {
     /**
      * turn right
      * 海龟右转
-     * @param degree
+     * @param degree  turnning degree
      */
     public void turnRight(double degree)
     {
@@ -346,7 +346,7 @@ public class Turtle {
     /**
      * turn right
      * 海龟右转
-     * @param degree
+     * @param degree turnning degree
      */
     public void rightTurn(double degree)
     {
@@ -449,7 +449,7 @@ public class Turtle {
      * set pen size
      * 设置画笔宽度
      *
-     * @param size
+     * @param size  pen size
      */
     public void setPenSize(int size)
     {
@@ -461,7 +461,7 @@ public class Turtle {
      * set pen color
      * 设置画笔颜色
      *
-     * @param color
+     * @param color  pen color
      */
     public void setPenColor(Color color)
     {
@@ -473,7 +473,7 @@ public class Turtle {
      * set turtle speed
      * 设置海龟移动速度
      *
-     * @param speed
+     * @param speed  turtle speed
      */
     public void setSpeed(int speed)
     {
@@ -490,7 +490,7 @@ public class Turtle {
     /**
      * set if turtle will rewind if out of screen
      * 设置当海龟移动到屏幕外时,是否自动回绕到屏幕另一侧
-     * @param isRewind
+     * @param isRewind  isRewind
      */
     public void setRewind(boolean isRewind)
     {
@@ -500,7 +500,7 @@ public class Turtle {
     /**
      * set if turtle move immediatelly (no animation)
      * 设置海龟是否瞬移(取消动画)
-     * @param isImmediate
+     * @param isImmediate  isImmediate
      */
     public void setImmediate(boolean isImmediate)
     {
@@ -543,8 +543,8 @@ public class Turtle {
      * put turtle to point(x,y)
      * 将海龟放到点(x,y)
      *
-     * @param x
-     * @param y
+     * @param x x cordinate of point
+     * @param y y cordinate of point
      */
     public void setXY(double x, double y)
     {
@@ -556,7 +556,7 @@ public class Turtle {
     /**
      * get x position of turtle
      * 获取海龟x坐标
-     * @return
+     * @return x position of turtle
      */
     public double getX()
     {
@@ -568,7 +568,7 @@ public class Turtle {
     /**
      * get y position of turtle
      * 获取海龟y坐标
-     * @return
+     * @return y position of turtle
      */
     public double getY()
     {
@@ -580,7 +580,7 @@ public class Turtle {
     /**
      * set orientation of the turtle
      * 设置海龟朝向
-     * @param angle
+     * @param angle  orientation angle
      */
     public void setAngle(double angle)
     {
@@ -614,8 +614,8 @@ public class Turtle {
     /**
      * set status of the turtle
      * 设置海龟当前状态
-     *
-     * @param state
+     * @see TurtleInfo
+     * @param state turtle state
      */
     public void setState(TurtleInfo state)
     {
@@ -629,8 +629,8 @@ public class Turtle {
     /**
      * let turtle face to point(x,y)
      * 让海龟朝向点(x,y)
-     * @param x
-     * @param y
+     * @param x x cordinate
+     * @param y y cordinate
      */
     public void faceXY(double x,double y)
     {
@@ -645,7 +645,7 @@ public class Turtle {
     /**
      * change turtle's orientation
      * 设置海龟的朝向
-     * @param angle
+     * @param angle turtle orientation(in degree)
      */
     public void turnTo(double angle)
     {
@@ -665,8 +665,8 @@ public class Turtle {
     /**
      * move turtle to point(x,y)
      * 让海龟移动到点(x,y)
-     * @param x
-     * @param y
+     * @param x x cordinate
+     * @param y y cordinate
      */
     public void gotoXY(double x, double y)
     {
@@ -730,7 +730,7 @@ public class Turtle {
      * get width of the window
      * 获取视窗宽度
      *
-     * @return
+     * @return width
      */
     public int getWidth() {
         return width;
@@ -740,7 +740,7 @@ public class Turtle {
      * get height of the window
      * 获取视窗高度
      *
-     * @return
+     * @return height
      */
     public int getHeight() {
         return height;
@@ -750,7 +750,7 @@ public class Turtle {
      * get the background image(drawing image)
      * 获取背景图像
      *
-     * @return
+     * @return the background(drawing) image
      */
     public ImageBuffer getWorldPage() {
         return worldPage;
@@ -760,7 +760,7 @@ public class Turtle {
      * get the turtle icon image
      * 获取海龟图标
      *
-     * @return
+     * @return the icon image
      */
     public ImageBuffer getIconPage() {
         return iconPage;
@@ -779,7 +779,7 @@ public class Turtle {
     /**
      * get if the turtle will act immediatelly (no animation)
      * 获取海龟是否瞬移(无动画)
-     * @return
+     * @return  true if immediately, false if not
      */
     public boolean isImmediate() {
         return immediate;

@@ -361,10 +361,10 @@ public class ImageBuffer {
      * draw a straight line from point(x1,y1) to (x2,y2)
      * 在屏幕上画一条从(x1,y1)到(x2,y2)的线
      *
-     * @param x1
-     * @param y1
-     * @param x2
-     * @param y2
+     * @param x1  x cordinate of point 1
+     * @param y1  y cordinate of point 1
+     * @param x2  x cordinate of point 2
+     * @param y2  y cordinate of point 2
      */
     public void line(int x1,int y1,int x2,int y2) {
         Graphics2D g=getGraphics2D();
@@ -820,13 +820,13 @@ public class ImageBuffer {
     }
 
     /**
-     * 设置视图
-     *
-     * @param left 视图左上角横坐标
-     * @param top 视图左上角纵坐标      *
-     * @param right
-     * @param bottom
-     * @param clipOn
+     * set the view port
+     * 设置视口
+     * @param left left of the view
+     * @param top  top of the view                                  v
+     * @param right right of the view
+     * @param bottom  bottom of the view
+     * @param clipOn  if the content out of the view will be clipped
      */
     public void setViewPort(int left,int top,int right,
                             int bottom,boolean clipOn) {

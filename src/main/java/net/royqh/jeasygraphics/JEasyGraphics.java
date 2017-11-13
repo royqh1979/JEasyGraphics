@@ -9,6 +9,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.text.AttributedString;
 import java.util.Scanner;
@@ -82,7 +83,7 @@ public class JEasyGraphics {
      *
      * @param imageFile the image File
      * @return the created image
-     * @throws IOException
+     * @throws IOException exception raised when reading file
      */
     public ImageBuffer createImage(File imageFile) throws IOException {
         BufferedImage image = ImageIO.read(imageFile);
@@ -95,11 +96,23 @@ public class JEasyGraphics {
      *
      * @param path  path to the image file
      * @return the created image
-     * @throws IOException
+     * @throws IOException exception raised when reading file
      */
     public ImageBuffer createImage(String path) throws IOException {
         File file = new File(path);
         return createImage(file);
+    }
+
+    /**
+     * create image for an image file
+     * 从图像文件创建图片
+     * @param inputStream the image file input stream
+     * @return the created image
+     * @throws IOException exception raised when reading file
+     */
+    public ImageBuffer createImage(InputStream inputStream) throws IOException{
+        BufferedImage image = ImageIO.read(inputStream);
+        return new ImageBuffer(image);
     }
 
     /**
@@ -246,7 +259,7 @@ public class JEasyGraphics {
      * get current font setting of the window
      * 获取当前字体
      *
-     * @return
+     * @return font setting
      */
     public Font getFont() {
         return targetPage.getFont();
@@ -374,7 +387,7 @@ public class JEasyGraphics {
      * set current renderMode
      * 设置渲染模式
      *
-     * @param renderMode
+     * @param renderMode  render mode
      */
     public void setRenderMode(RenderMode renderMode) {
         this.renderMode = renderMode;
@@ -394,10 +407,10 @@ public class JEasyGraphics {
      * draw a straight line from point(x1,y1) to (x2,y2)
      * 在屏幕上画一条从(x1,y1)到(x2,y2)的线
      *
-     * @param x1
-     * @param y1
-     * @param x2
-     * @param y2
+     * @param x1  x cordinate of point 1
+     * @param y1  y cordinate of point 1
+     * @param x2  x cordinate of point 2
+     * @param y2  y cordinate of point 2
      */
     public void line(int x1, int y1, int x2, int y2) {
         targetPage.line(x1, y1, x2, y2);
@@ -827,7 +840,7 @@ public class JEasyGraphics {
      * test if the program is running  (always true)
      * 测试当前程序是否在运行(永远返回true)
      *
-     * @return
+     * @return true
      */
     public boolean isRun() {
         return true;
@@ -965,7 +978,8 @@ public class JEasyGraphics {
     /**
      * get view port info
      * 获取视口信息
-     * @return
+     * @see ViewPortInfo
+     * @return view port info
      */
     public ViewPortInfo getViewPort() {
         return targetPage.getViewPort();
@@ -1255,7 +1269,7 @@ public class JEasyGraphics {
 
     /**
      * get width of the window
-     * @return
+     * @return width of the window
      */
     public int getWidth() {
         return targetPage.getWidth();

@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.royqh1979</groupId>
-    <artifactId>JEasyGraphics</artifactId>
-    <version>1.0</version>
+    <artifactId>jeasygraphics</artifactId>
+    <version>1.0.1</version>
     
     <name>${project.groupId}:${project.artifactId}</name>
-    <description>An easy-to-use Java graphics library like graphics.h on Turbo C</description>
+    <description>JEasyGraphics, an easy-to-use Java graphics library like graphics.h on Turbo C</description>
     <url>https://github.com/royqh1979/JEasyGraphics</url>
 
     <licenses>
